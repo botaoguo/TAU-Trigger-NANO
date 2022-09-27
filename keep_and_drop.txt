@@ -1,0 +1,10 @@
+# this is a comment
+drop * # start with all
+keep Electron*
+keep Muon*
+keep Jet*
+keep Tau*
+keep HLT*
+keep MET*
+keep Flag*
+keep Generator*
