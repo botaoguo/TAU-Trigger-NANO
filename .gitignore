@@ -1,0 +1,9 @@
+# output file
+*.root
+
+# jobs log
+*.log
+
+# some pyc
+*.pyc
+__pycache__/
