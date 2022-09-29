@@ -2,6 +2,7 @@
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection,Object
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.tools import *
+from summaryProducer import *
 
 import ROOT as R
 import math
@@ -12,6 +13,10 @@ class selectionFilter(Module):
     def __init__(self, isMC, era):
         self.isMC = isMC
         self.era = era
+
+        # cutflow hist
+        self.cutflow_hist = R.TH1F('cutflow','Cutflow',20,0,20)
+        self.cutflow_assigned = 0
         pass
     
     def beginJob(self):
@@ -24,7 +29,18 @@ class selectionFilter(Module):
         self.out = wrappedOutputTree
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        self.cutflow_hist.Write()
+        #summary2017MC().endFile(inputFile, outputFile, inputTree, wrappedOutputTree)
         pass
+
+    def fill_cut(self, cutnm):
+        _ibin = self.cutflow_hist.GetXaxis().FindBin(cutnm)
+        if _ibin == -1:
+            self.cutflow_assigned += 1
+            self.cutflow_hist.GetXaxis().SetBinLabel(self.cutflow_assigned, cutnm)
+            self.cutflow_hist.SetBinContent( self.cutflow_assigned, 1 )
+        else:
+            self.cutflow_hist.SetBinContent( _ibin, self.cutflow_hist.GetBinContent(_ibin) + 1 )
 
     # function for calculate delta phi
     def calc_dphi(self, lepton, met):    # object : lepton, met
@@ -108,6 +124,7 @@ class selectionFilter(Module):
             pass_MET_filter = False
 
         # return result
+        '''
         if (find_signal_muon) and (not has_other_muon) and (not has_ele) and (pass_MET_filter):
             if MT_Cut:
                 print("This event has not pass due to MT Cut!")
@@ -121,6 +138,22 @@ class selectionFilter(Module):
         else:
             print("This event is not pass and its signal muon num is {} !".format(len(lt_muon_sel)))
             return False
+        '''
+        self.fill_cut('no_cut')
+        if find_signal_muon:
+            self.fill_cut('signal_muon')
+            if not has_other_muon:
+                self.fill_cut('muon_veto')
+                if not has_ele:
+                    self.fill_cut('ele_veto')
+                    if pass_MET_filter:
+                        self.fill_cut('met_filters')
+                        if not MT_Cut:
+                            self.fill_cut('MT_Cut')
+                            if not has_bjet:
+                                self.fill_cut('btag_veto')
+                                return True
+        
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
