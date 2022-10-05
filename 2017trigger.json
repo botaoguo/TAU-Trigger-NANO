@@ -1,0 +1,184 @@
+{
+    "HLT_IsoMu27_v": {
+        "filters": [ [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07" ] ],
+        "leg_types": [ "mu" ],
+        "is_tag": 1
+    },
+    "HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24LooseChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackLooseChargedIsoAgainstMuon", "hltOverlapFilterIsoMu24LooseChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_TightID_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24LooseChargedIsoTightOOSCPhotonsPFTau20" ],
+            [ "hltPFTau20TrackLooseChargedIsoTightOOSCPhotonsAgainstMuon", "hltOverlapFilterIsoMu24LooseChargedIsoTightOOSCPhotonsPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackMediumChargedIsoAgainstMuon", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_TightID_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoTightOOSCPhotonsPFTau20" ],
+            [ "hltPFTau20TrackMediumChargedIsoTightOOSCPhotonsAgainstMuon", "hltOverlapFilterIsoMu24MediumChargedIsoTightOOSCPhotonsPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackTightChargedIsoAgainstMuon", "hltOverlapFilterIsoMu24TightChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_TightID_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoTightOOSCPhotonsPFTau20" ],
+            [ "hltPFTau20TrackTightChargedIsoTightOOSCPhotonsAgainstMuon", "hltOverlapFilterIsoMu24TightChargedIsoTightOOSCPhotonsPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24LooseChargedIsoPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1LooseChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24LooseChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24LooseChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1LooseChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24LooseChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1MediumChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1MediumChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32, "hltObj_pt": 40 },
+        "target_channels": [ "ditau" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1TightChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32, "hltObj_pt": 40 },
+        "target_channels": [ "ditau" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 },
+        "target_channels": [ "ditau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22erIsoTau40erL1f0L2f10QL3f20QL3trkIsoFiltered0p07" ],
+            [ "hltSelectedPFTau50MediumChargedIsolationL1HLTMatchedMu22IsoTau40" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection_etau": { "l1Tau_pt": 26, "l1Tau_hwIso": 0, "hltObj_pt": 30 },
+        "target_channels": [ "etau", "mutau" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27MediumChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27TightChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27LooseChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27MediumChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27TightChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau40_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau40MonitoringReg" ],
+            [ "hltSelectedPFTau40TrackPt1MediumChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau40MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau40MonitoringReg" ],
+            [ "hltSelectedPFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau40MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau40_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoPFTau40MonitoringReg" ],
+            [ "hltSelectedPFTau40TrackPt1TightChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoPFTau40MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau40MonitoringReg" ],
+            [ "hltSelectedPFTau40TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau40MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection": { "l1Tau_pt": 32 }
+    }
+}

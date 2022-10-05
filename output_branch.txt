@@ -1,0 +1,12 @@
+drop *
+keep Muon*
+keep Tau*
+keep Jet*
+keep Electron*
+keep HLT*
+keep MET*
+keep run
+keep lumi
+keep event
+keep *pass*
+keep *weight*
