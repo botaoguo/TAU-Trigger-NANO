@@ -3,6 +3,7 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.tools import *
 from summaryProducer import *
+from tupleProducer import *
 
 import ROOT as R
 import math
@@ -14,8 +15,10 @@ class selectionFilter(Module):
         self.isMC = isMC
         self.era = era
 
+        self.signalMuon = None
+
         # cutflow hist
-        self.cutflow_hist = R.TH1F('cutflow','Cutflow',20,0,20)
+        self.cutflow_hist = R.TH1F('pre_selection','pre_selection',20,0,20)
         self.cutflow_assigned = 0
         pass
     
@@ -70,7 +73,7 @@ class selectionFilter(Module):
         met = Object(event, "MET")
         flag = Object(event, "Flag")
         
-        signalMuon = None
+        #self.signalMuon = None
         signalMuon_num = None
         find_signal_muon = False
         has_other_muon = False
@@ -89,7 +92,7 @@ class selectionFilter(Module):
                 lt_muon_sel.append( (_mu_v4, _muon, _m) )
         lt_muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
         if len(lt_muon_sel) >= 1:
-            signalMuon = lt_muon_sel[0][0]
+            self.signalMuon = lt_muon_sel[0][0]
             signalMuon_num = lt_muon_sel[0][2]
             find_signal_muon = True
 
@@ -108,7 +111,7 @@ class selectionFilter(Module):
         # Apply MT cut (if enabled)
         if mtCut > 0:
             if len(lt_muon_sel) >=1:
-                if self.calc_MT(signalMuon, self.calc_met(met)) > mtCut:
+                if self.calc_MT(self.signalMuon, self.calc_met(met)) > mtCut:
                     MT_Cut = True
         
         # Apply b tag veto (if enabled)
