@@ -54,7 +54,7 @@ def main():
 
     p = PostProcessor(".", files, "1", 
                       branchsel = "keep_and_drop.txt", 
-                      modules=[summary2017MC(), selection2017MC() ], 
+                      modules=[summary2017MC(), selection2017MC(), tuple2017MC()], 
                       provenance=True,
                       outputbranchsel = "output_branch.txt"
     )

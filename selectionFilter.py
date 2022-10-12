@@ -15,8 +15,6 @@ class selectionFilter(Module):
         self.isMC = isMC
         self.era = era
 
-        self.signalMuon = None
-
         # cutflow hist
         self.cutflow_hist = R.TH1F('pre_selection','pre_selection',20,0,20)
         self.cutflow_assigned = 0
@@ -46,8 +44,8 @@ class selectionFilter(Module):
             self.cutflow_hist.SetBinContent( _ibin, self.cutflow_hist.GetBinContent(_ibin) + 1 )
 
     # function for calculate delta phi
-    def calc_dphi(self, lepton, met):    # object : lepton, met
-        dphi = lepton.Phi() - met.Phi()
+    def calc_dphi(self, lepton_v4, met):    # object : lepton, met
+        dphi = lepton_v4.Phi() - met.Phi()
         while dphi<-math.pi:
             dphi+=2*math.pi
         while dphi>math.pi:
@@ -55,14 +53,23 @@ class selectionFilter(Module):
         return dphi
     
     # function for calculate MT
-    def calc_MT(self, lepton, met):
-        delta_phi = self.calc_dphi(lepton, met)
-        return math.sqrt( 2.0 * lepton.Pt() * met.Pt() * (1.0 - math.cos(delta_phi)) )
+    def calc_MT(self, lepton_v4, met):
+        delta_phi = self.calc_dphi(lepton_v4, met)
+        return math.sqrt( 2.0 * lepton_v4.Pt() * met.Pt() * (1.0 - math.cos(delta_phi)) )
 
     def calc_met(self, met):
         _met_v = R.TLorentzVector()
         _met_v.SetPtEtaPhiM(met.pt, 0, met.phi, 0)
         return _met_v
+
+    def find_signal_muon(self,coll_muons):
+        muon_sel = []
+        for _m, _muon in enumerate(coll_muons):
+            _mu_v4 = _muon.p4()
+            if (_muon.mediumId) and (_mu_v4.Pt() > 24) and (abs(_mu_v4.Eta()) < 2.1) :
+                muon_sel.append( (_mu_v4, _muon, _m) )
+        muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
+        return muon_sel
 
     def analyze(self, event):
         # process event, return True (go to next module) or False (fail, go to next event)
@@ -73,7 +80,7 @@ class selectionFilter(Module):
         met = Object(event, "MET")
         flag = Object(event, "Flag")
         
-        #self.signalMuon = None
+        signalMuon = None
         signalMuon_num = None
         find_signal_muon = False
         has_other_muon = False
@@ -81,10 +88,18 @@ class selectionFilter(Module):
         MT_Cut = False
         has_bjet = False
         pass_MET_filter = True
-        mtCut = 100
-        btagThreshold = 0.8
+        mtCut = 0  #100
+        btagThreshold = 0  #0.8
+        
+        lt_muon_sel = []
+        lt_muon_sel = self.find_signal_muon(muons)
+        if len(lt_muon_sel) >= 1:
+            signalMuon_v4 = lt_muon_sel[0][0]
+            signalMuon_num = lt_muon_sel[0][2]
+            find_signal_muon = True
 
         # Find signal muon
+        '''
         lt_muon_sel = []
         for _m, _muon in enumerate(muons):
             _mu_v4 = _muon.p4()
@@ -92,9 +107,11 @@ class selectionFilter(Module):
                 lt_muon_sel.append( (_mu_v4, _muon, _m) )
         lt_muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
         if len(lt_muon_sel) >= 1:
-            self.signalMuon = lt_muon_sel[0][0]
+            signalMuon = lt_muon_sel[0][0]
             signalMuon_num = lt_muon_sel[0][2]
+            print("sele muon: ",signalMuon.Pt())
             find_signal_muon = True
+        '''
 
         # Apply third lepton veto
         for _m, _muon in enumerate(muons):
@@ -111,7 +128,7 @@ class selectionFilter(Module):
         # Apply MT cut (if enabled)
         if mtCut > 0:
             if len(lt_muon_sel) >=1:
-                if self.calc_MT(self.signalMuon, self.calc_met(met)) > mtCut:
+                if self.calc_MT(signalMuon_v4, self.calc_met(met)) > mtCut:
                     MT_Cut = True
         
         # Apply b tag veto (if enabled)
@@ -166,3 +183,4 @@ selection2018MC = lambda : selectionFilter(True,"2018")
 selection2016data = lambda : selectionFilter(False,"2016")
 selection2017data = lambda : selectionFilter(False,"2017")
 selection2018data = lambda : selectionFilter(False,"2018")
+
