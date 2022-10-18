@@ -51,10 +51,12 @@ def main():
     #    patTriggerObjectStandAlone = cms.InputTag("")
     #)
     
+    #Modules = [tuple2017MC()]
+    Modules = [summary2018MC(), selection2018MC(), tuple2018MC()]
 
     p = PostProcessor(".", files, "1", 
                       branchsel = "keep_and_drop.txt", 
-                      modules=[summary2017MC(), selection2017MC(), tuple2017MC()], 
+                      modules= Modules, 
                       provenance=True,
                       outputbranchsel = "output_branch.txt"
     )

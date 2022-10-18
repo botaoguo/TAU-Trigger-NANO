@@ -1,0 +1,224 @@
+{
+    "HLT_IsoMu27_v": {
+        "filters": [ [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07" ] ],
+        "leg_types": [ "mu" ],
+        "is_tag": 1
+    },
+    "HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu27LooseChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackLooseChargedIsoAgainstMuon", "hltOverlapFilterIsoMu27LooseChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu27_MediumChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu27MediumChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackMediumChargedIsoAgainstMuon", "hltOverlapFilterIsoMu27MediumChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu27_TightChargedIsoPFTau20_Trk1_eta2p1_SingleL_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu27TightChargedIsoPFTau20" ],
+            [ "hltPFTau20TrackTightChargedIsoAgainstMuon", "hltOverlapFilterIsoMu27TightChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1MediumChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1MediumChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "target_channels": [ "ditau" ],
+        "selection_ditau": { "hltObj_pt": 40 },
+        "max_run": 317509,
+        "sample_types": [ "data" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1TightChargedIsolationL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "target_channels": [ "ditau" ],
+        "selection_ditau": { "hltObj_pt": 40 },
+        "max_run": 317509,
+        "sample_types": [ "data" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltSelectedPFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "target_channels": [ "ditau" ],
+        "max_run": 317509,
+        "sample_types": [ "data" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22erIsoTau40erL1f0L2f10QL3f24QL3trkIsoFiltered0p07" ],
+            [ "hltSelectedPFTau50MediumChargedIsolationL1HLTMatchedMu22IsoTau40" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection_etau": { "l1Tau_pt": 26, "l1Tau_hwIso": 0, "hltObj_pt": 30 },
+        "target_channels": [ "etau", "mutau" ],
+        "max_run": 317509,
+        "sample_types": [ "data" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27MediumChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27TightChargedIsolationAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27LooseChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27MediumChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltSelectedPFTau27TightChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "selection_etau": { "l1Tau_pt": 26, "l1Tau_hwIso": 0, "hltObj_pt": 30 },
+        "target_channels": [ "etau", "mutau" ],
+        "min_run": 317509,
+        "sample_types": [ "data", "mc" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27MediumChargedIsolationAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27TightChargedIsolationAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27LooseChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27MediumChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ],
+            [ "hltHpsSelectedPFTau27TightChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched", "hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ],
+            [ "hltHpsSelectedPFTau35TrackPt1MediumChargedIsolationL1HLTMatchedReg", "hltHpsOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ],
+        "target_channels": [ "ditau" ],
+        "min_run": 317509,
+        "sample_types": [ "data", "mc" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ],
+            [ "hltHpsSelectedPFTau35TrackPt1TightChargedIsolationL1HLTMatchedReg", "hltHpsOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltHpsSelectedPFTau35TrackPt1MediumChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltHpsOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f20QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ],
+            [ "hltHpsSelectedPFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg", "hltHpsOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu27_LooseChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu27LooseChargedIsoPFTau20" ],
+            [ "hltHpsPFTau20TrackLooseChargedIsoAgainstMuon", "hltHpsOverlapFilterIsoMu27LooseChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu27_MediumChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu27MediumChargedIsoPFTau20" ],
+            [ "hltHpsPFTau20TrackMediumChargedIsoAgainstMuon", "hltHpsOverlapFilterIsoMu27MediumChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_IsoMu27_TightChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v": {
+        "filters": [
+            [ "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07", "hltHpsOverlapFilterIsoMu27TightChargedIsoPFTau20" ],
+            [ "hltHpsPFTau20TrackTightChargedIsoAgainstMuon", "hltHpsOverlapFilterIsoMu27TightChargedIsoPFTau20" ]
+        ],
+        "leg_types": [ "mu", "tau" ]
+    },
+    "HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v": {
+        "filters": [
+            [ "hltSelectedPFTau180MediumChargedIsolationL1HLTMatched" ]
+        ],
+        "leg_types": [ "tau" ]
+    }
+}
