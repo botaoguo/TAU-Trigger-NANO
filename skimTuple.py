@@ -19,7 +19,7 @@ parser.add_argument('--pu', required=False, type=str, default=None,
                     help="file with the pileup profile for the data taking period")
 args = parser.parse_args()
 
-path_prefix = '' if 'tauana' in os.getcwd() else 'tauana/'
+path_prefix = '' if 'TAU-Trigger-NANO' in os.getcwd() else 'TAU-Trigger-NANO/'
 sys.path.insert(0, path_prefix + 'Common/python')
 from AnalysisTypes import *
 from AnalysisTools import *
