@@ -31,7 +31,6 @@ class selectionFilter(Module):
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.cutflow_hist.Write()
-        #summary2017MC().endFile(inputFile, outputFile, inputTree, wrappedOutputTree)
         pass
 
     def fill_cut(self, cutnm):

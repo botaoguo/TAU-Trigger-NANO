@@ -7,6 +7,10 @@ from summaryProducer import *
 import ROOT as R
 import math
 
+import triggerDescriptor as trig
+
+from triggerDescriptor import TriggerDescriptor,TriggerLeg
+
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 import TriggerConfig
@@ -30,6 +34,9 @@ class tupleProducer(Module):
     
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.out = wrappedOutputTree
+        self.out.branch("npv", "F")
+        self.out.branch("npu", "F")
+        
         self.out.branch("muon_pt", "F")
         self.out.branch("muon_eta", "F")
         self.out.branch("muon_phi", "F")
@@ -94,7 +101,69 @@ class tupleProducer(Module):
         else:
             self.producer_hist.SetBinContent( _ibin, self.producer_hist.GetBinContent(_ibin) + 1 )
 
-    def matchTriggerObject(self):
+    def exist_same_element(self, _list):
+        for i in range(len(_list)):
+            for j in range(i+1, len(_list)):
+                if _list[i] == _list[j]:
+                    return True
+        return False
+
+    def triggerDescriptorCollection(self, trig_vpset):
+        Leg_Type = dict()
+        Leg_Type['e'] = 1
+        Leg_Type['mu'] = 2
+        Leg_Type['tau'] = 4
+        Leg_Type['jet'] = 8
+        if len(trig_vpset) > 64:
+            raise RuntimeError("The max number of triggers is exceeded.")
+        descs = []    # return (desc, desc_index)
+        tag_desc = []
+        for _i, _pset in enumerate(trig_vpset):
+            desc = TriggerDescriptor()
+            desc.path = _pset[3]    # _pset[3] correspnds path
+            desc.is_tag = _pset[1]
+            leg_types = _pset[2]
+            filters = _pset[0]
+            #print("leg_type len: {}".format(len(leg_types)))
+            #print("filters len: {}".format(len(filters)))
+            if desc.path in (descs[_x][0].path for _x in range( len(descs) )):
+                raise RuntimeError("Duplicated trigger path = '%s'" % desc.path)
+            if len(leg_types) != len(filters):
+                raise RuntimeError("Inconsitent leg_types and filters for trigger path = '%s'" % desc.path)
+            #print("desc.path : ", desc.path)
+            desc.regex = "^" + desc.path + "[0-9]+$"
+            desc.type_mask = 0
+            desc.legs = []
+            for _l, _leg_type in enumerate(leg_types):
+                leg = TriggerLeg()
+                leg.type = _leg_type
+                leg.filters = filters[_l]
+                desc.type_mask |= Leg_Type[_leg_type]
+                desc.legs.append(leg)
+            desc_index = _i
+            #print("desc_index : {}".format(desc_index))
+            descs.append( (desc, desc_index) )
+            if desc.is_tag:
+                tag_desc.append(desc_index)
+        # test for descs
+        '''for _d, _desc in enumerate(descs):
+            print("This is desc {}".format(_d))
+            print("desc.path: {}".format(_desc[0].path))
+            for _l, _le in enumerate(_desc[0].legs): 
+                print("desc.leg {0} type = {1}".format(_l, _le.type))
+            print("desc.regex: {}".format(_desc[0].regex))
+            print("desc.type_mask: {}".format(_desc[0].type_mask))
+            print("************descs**************")
+        for _t, _ta in enumerate(tag_desc):
+            print("This is tag {}".format(_t))
+            print("tag_index : {}".format(_ta))
+            print("************tag**************")'''
+        return descs, tag_desc
+
+
+    def matchTriggerObject(self, triggerResults, triggerObjects, muon_ref_p4, triggerNames, deltaR2Thr, include_tag_paths, include_nontag_paths):
+        #result = None
+        #obj_types = []
         pass
 
     def deltaR2(self, l1_v4, l2_v4):
@@ -150,7 +219,6 @@ class tupleProducer(Module):
         isTauProduct = ( ((gen_part.statusFlags) >> 5) & 1 )
         isPrompt = (gen_part.statusFlags & 1)
         isFirstCopy = ( ((gen_part.statusFlags) >> 12) & 1 )
-        #print("statusFlags: {}".format(isTauProduct))
         if not ( ( isPrompt or isTauProduct ) and isFirstCopy ):
             return None
         abs_pdg = abs(gen_part.pdgId)
@@ -170,9 +238,9 @@ class tupleProducer(Module):
                         break
                     _idx = _part.genPartIdxMother
                     _part = gen_particles[_idx]
-        if len(decay_sel) >=1:
-            for _i, _decay_part in enumerate(decay_sel):
-                print("decay sel pdgid: {}".format(_decay_part[1].pdgId))
+        #if len(decay_sel) >=1:
+        #    for _i, _decay_part in enumerate(decay_sel):
+        #        print("decay sel pdgid: {}".format(_decay_part[1].pdgId))
         # find stable part for particle exclude lastcopy
         rad_sel = []
         for _idx, _part in enumerate(gen_particles):
@@ -228,20 +296,16 @@ class tupleProducer(Module):
         if ( (abs_pdg == tau_pdgid) and (len(light_lepton_sel) == 1) ):
             abs_lep_pdg = abs(light_lepton_sel[0][1].pdgId)
             pt_thr = pt_thresholds[abs_lep_pdg][1]
-            print("pt thr : {}".format(pt_thr))
             if ( (light_lepton_sel[0][1].p4().Pt() > pt_thr) or ( total_vis_p4.Pt() < pt_thr ) ):
                 return None
             match = genMatches[abs_lep_pdg, True][2]
-            print("light lepton match : {}".format(genMatches[abs_lep_pdg, True][2]))
         else:
             if total_vis_p4.Pt() <= pt_thresholds[abs_pdg][1]:
                 return None
             if abs_pdg not in lepton_pdgid:
-                print("no match!")
                 match = 6  # 6 stand for no match
             else:
                 match = genMatches[abs_pdg, isTauProduct][2]
-                print("match : {}".format(genMatches[abs_pdg, isTauProduct][2]))
         # fill result
         result = gen_part
         result.match = match
@@ -290,11 +354,11 @@ class tupleProducer(Module):
             if (_tau_v4.Pt()) > 18 and (abs(_tau_v4.Eta()) < 2.3) and (self.deltaR2(signalMu_v4, _tau_v4) > deltaR2Thr):
                 pass_mva_sel = (_tau.rawMVAoldDM2017v2 > 0)    # and tau.tauID("againstMuonLoose3") > 0.5f ?
                 pass_deep_sel = ( (_tau.rawDeepTau2017v2p1VSjet > 0) and (_tau.idDeepTau2017v2p1VSe > 0.5) and (_tau.idDeepTau2017v2p1VSmu > 0.5) )
-                if (pass_mva_sel or pass_deep_sel) and ( (pt not in best_tau.items()) or (best_tau[pt].p4().Pt() < _tau.p4().Pt()) ):
+                if (pass_mva_sel or pass_deep_sel) and ( (pt not in best_tau.keys()) or (best_tau[pt].p4().Pt() < _tau.p4().Pt()) ):
                     best_tau[pt] = _tau
-                if pass_mva_sel and ( (mva not in best_tau.items()) or (best_tau[mva].rawMVAoldDM2017v2 < _tau.rawMVAoldDM2017v2) ):
+                if pass_mva_sel and ( (mva not in best_tau.keys()) or (best_tau[mva].rawMVAoldDM2017v2 < _tau.rawMVAoldDM2017v2) ):
                     best_tau[mva] = _tau
-                if pass_deep_sel and ( (deepTau not in best_tau.items()) or (best_tau[deepTau].rawDeepTau2017v2p1VSjet < _tau.rawDeepTau2017v2p1VSjet) ):
+                if pass_deep_sel and ( (deepTau not in best_tau.keys()) or (best_tau[deepTau].rawDeepTau2017v2p1VSjet < _tau.rawDeepTau2017v2p1VSjet) ):
                     best_tau[deepTau] = _tau
         #
         selected_gen_tau = self.selectGenLeg(genleptons, True)
@@ -340,10 +404,10 @@ class tupleProducer(Module):
         for _l, lepton in enumerate(genleptons):
             if (lepton.match == 5) and ( (leg is None) or (leg.visible_p4.Pt() < lepton.visible_p4.Pt()) ):
                 leg = lepton
-        if leg is not None:
-            print("leg visible pdgid,pt :{0}, {1}".format(leg.pdgId, leg.visible_p4.Pt()))
-        else:
-            print("leg is None, match==6")
+        #if leg is not None:
+        #    print("leg visible pdgid,pt :{0}, {1}".format(leg.pdgId, leg.visible_p4.Pt()))
+        #else:
+        #    print("leg is None, match==6")
         return leg
 
     def analyze(self, event):
@@ -358,6 +422,9 @@ class tupleProducer(Module):
         gen_vis_taus = Collection(event, "GenVisTau")
         generator = Object(event, "Generator")
         HLT = Object(event, "HLT")
+        pu = Object(event, "Pileup")
+        pv = Object(event, "PV")
+        trigobjs = Collection(event, "TrigObj")
 
         signalMu = None
         signalMu_v4 = None
@@ -376,8 +443,6 @@ class tupleProducer(Module):
         genleptons = self.collectGenLeptons(genparts)
         self.count += 1
         print("**********")
-        #if self.count == 300:
-        #    exit(0)
         
         # has muon
         signal_muon_sel = []
@@ -387,19 +452,19 @@ class tupleProducer(Module):
         signalMu = signal_muon_sel[0][1]
         if len(signal_muon_sel) >=1:
             gen_muon = self.lepton_gen_match(signalMu, genleptons)
-            if gen_muon is not None:
-                print("gen_muon_match:{}".format(gen_muon.match))
-            else:
-                print("gen muon is None")
+            #if gen_muon is not None:
+                #print("gen_muon_match:{}".format(gen_muon.match))
+            #else:
+                #print("gen muon is None")
             has_muon = True
-            #print("signal muon : {}",signalMuon)
         
         # tag trigger match
         # TODO
-        trigFile = './2017trigger.json'
-        hltPaths, tagHltPaths = TriggerConfig.LoadAsVPSet(trigFile)
-
-        #print("hltPaths: ", hltPaths)
+        trigFile = './2018trigger.json'
+        #hltPaths, tagHltPaths = TriggerConfig.LoadAsVPSet(trigFile)
+        hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
+        triggerDescriptor, tag_trig = self.triggerDescriptorCollection(hltPaths)
+        #muonTriggerMatch = self.matchTriggerObject()
         tag_trig_match = True
 
         # sele tau as a list? (reco_tau, gen_tau, reco_tau_id)
@@ -434,9 +499,6 @@ class tupleProducer(Module):
                     btag_veto = True
                     break
 
-        #if self.ctr_evt_processed % 10000 ==0:
-        #    print("Processed evt = {}".format(self.ctr_evt_processed))
-
         self.fill_cut('total')
         if has_muon:
             self.fill_cut('has_muon')
@@ -447,7 +509,6 @@ class tupleProducer(Module):
                     if not btag_veto:
                         self.fill_cut('btag_veto')
                         # fill muon and gen muon
-                        #if (gen_muon is not None) and (gen_muon.match != 6):
                         if (gen_muon is not None):
                             self.out.fillBranch("muon_gen_match", gen_muon.match)
                             self.out.fillBranch("muon_gen_pt",gen_muon.p4().Pt())
@@ -543,6 +604,9 @@ class tupleProducer(Module):
                             self.out.fillBranch("tau_rawDeepTau2017v2p1VSjet", -999.0)
                         # fill visible mass
                         self.out.fillBranch("vis_mass", (signalMu_v4 + tau_ref_p4).M())
+                        # fill other
+                        self.out.fillBranch("npu", pu.nPU)
+                        self.out.fillBranch("npv", pv.npvs)
                         return True
         return False
 

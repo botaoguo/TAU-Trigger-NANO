@@ -1,9 +1,11 @@
 # write a Module for summary producer
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection,Object
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
+from PhysicsTools.NanoAODTools.postprocessing.framework.output import OutputTree
 from PhysicsTools.NanoAODTools.postprocessing.tools import *
 import ROOT as R
-
+from array import array
+import triggerDescriptor as trig
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 class summaryProducer(Module):
@@ -16,19 +18,29 @@ class summaryProducer(Module):
         self.ctr_evt_processed = 0
         self.tot_evt_genweight = 0
         
+        self.summary = R.TTree("summary", "summary")
         # cutflow hist
         #self.cutflow_hist = R.TH1F('cutflow','Cutflow',20,0,20)
         #self.cutflow_assigned = 0
         pass
     
     def beginJob(self, histFile=None, histDirName=None):
-        #Module.beginJob(self, histFile, histDirName)
-        #self.cutflow_hist = R.TH1F('cutflow','Cutflow',20,0,20)
-        #self.addObject(self.cutflow_hist)
-        #self.outtree.branch("Cutflow",   "B");
+        #self.summary = OutputTree(inputFile, "summary", "summary")
+        trigFile = './2018trigger.json'
+        hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
+        index = array("i", [0])
+        #pattern = 'HLT'
+        self.summary.Branch("trigger_index", index, "trigger_index/I")
+        #self.summary.Branch("trigger_pattern", pattern, "trigger_pattern/I")
+        for _i, _hltp in enumerate(hltPaths):
+            index[0] = _i
+            pattern = _hltp[3]
+            #self.summary.GetXaxis().SetBinLabel(_i , pattern)
+            self.summary.Fill()
         pass
     
     def endJob(self):
+        #self.summary.Fill()
         pass
     
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
@@ -37,6 +49,7 @@ class summaryProducer(Module):
         self.out = wrappedOutputTree
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        self.summary.Write()
         #self.cutflow_hist.Write()
         pass
 
