@@ -1,4 +1,4 @@
-nohup python postproc.py --input nanoAOD.root --isMC 1 --era 2017 > nohup.log 2>&1 &
+nohup python postproc.py --input nanoAOD-2018MC.root --isMC 1 --era 2018 > nohup.log 2>&1 &
 
 # activate ROOT env to run the script
 
