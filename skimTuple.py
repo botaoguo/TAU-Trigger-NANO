@@ -26,25 +26,29 @@ from AnalysisTools import *
 import TriggerConfig
 ROOT.ROOT.EnableImplicitMT(4)
 ROOT.gROOT.SetBatch(True)
-#ROOT.gInterpreter.Declare('#include "{}TauTagAndProbe/interface/PyInterface.h"'.format(path_prefix))
+ROOT.gInterpreter.Declare('#include "{}interface/PyInterface.h"'.format(path_prefix))
 
 if args.type not in ['data', 'mc']:
     raise RuntimeError("Invalid sample type")
 
 input_vec = ListToStdVector(args.input)
-'''
+print("CHECK POINT 1")
 if args.type == 'mc':
     if args.pu is None:
         raise RuntimeError("Pileup file should be provided for mc.")
     data_pu_file = ROOT.TFile(args.pu, 'READ')
+    print("CHECK POINT 2")
     data_pu = data_pu_file.Get('pileup')
-    df_all = ROOT.RDataFrame('all_events', input_vec)
+    df_all = ROOT.RDataFrame('Events', input_vec)
+    print("CHECK POINT 3")
     mc_pu = df_all.Histo1D(ROOT.RDF.TH1DModel(data_pu), 'npu')
     ROOT.PileUpWeightProvider.Initialize(data_pu, mc_pu.GetPtr())
-
+print("CHECK POINT 4")
 trig_descriptors, channel_triggers = TriggerConfig.Load(args.config)
 trigger_dict, filter_dict = TriggerConfig.LoadTriggerDictionary(input_vec)
+print("CHECK POINT 5")
 triggerMatch = ROOT.TriggerMatchProvider.Initialize()
+print("CHECK POINT 6")
 channels = {}
 for channel_name, channel_trig_descs in channel_triggers.items():
     channel_id = ParseEnum(Channel, channel_name)
@@ -52,12 +56,16 @@ for channel_name, channel_trig_descs in channel_triggers.items():
     for desc in channel_trig_descs:
         if 'sample_types' in desc and args.type not in desc['sample_types']: continue
         if desc['leg_types'][-1] != 'tau': continue
+        print("CHECK POINT 7")
         match_desc = ROOT.TriggerMatchProvider.MatchDescriptor()
+        print("CHECK POINT 8")
         pattern = '^{}.*'.format(desc['name'])
         hlt_paths = TriggerConfig.GetMatchedTriggers(trigger_dict, pattern)
         match_desc.match_mask = int(TriggerConfig.GetMatchMask(hlt_paths))
+        print("CHECK POINT 9")
         filter_names = desc['filters'][-1]
         match_desc.filter_hashes = ListToStdVector([ filter_dict[f] for f in filter_names ], elem_type='UInt_t')
+        print("CHECK POINT 10")
         if 'min_run' in desc and args.type == 'data':
             match_desc.min_run = desc['min_run']
         if 'max_run' in desc and args.type == 'data':
@@ -71,7 +79,7 @@ for channel_name, channel_trig_descs in channel_triggers.items():
             if 'l1Tau_hwIso' in desc[sel_name]:
                 match_desc.l1Tau_hwIso = desc[sel_name]['l1Tau_hwIso']
         triggerMatch.Add(channel_id, match_desc)
-'''
+print("CHECK POINT 11")
 selection_id = ParseEnum(TauSelection, args.selection)
 df = ROOT.RDataFrame('Events', input_vec)
 df = df.Filter('''
@@ -79,11 +87,12 @@ df = df.Filter('''
                && tau_pt > 20 && abs(tau_eta) < 2.1 && tau_decayMode != 5 && tau_decayMode != 6
                && vis_mass > 40 && vis_mass < 80
                '''.format(selection_id))
+print("CHECK POINT 12")
 if selection_id == TauSelection.DeepTau:
     df = df.Filter('( (tau_idDeepTau2017v2p1VSmu << 2) & (1 << {})) != 0'.format(DiscriminatorWP.Tight))
 if args.type == 'mc':
     df = df.Filter('tau_charge + muon_charge == 0 && tau_gen_match == 5')
-    #df = df.Define('weight', "PileUpWeightProvider::GetDefault().GetWeight(npu) * genEventWeight")
+    df = df.Define('weight', "PileUpWeightProvider::GetDefault().GetWeight(npu) * 1.0")
 else:
     df = df.Define('weight', "muon_charge != tau_charge ? 1. : -1.")
 
@@ -93,11 +102,12 @@ skimmed_branches = [
 ]
 
 deltaRThr = 0.5
-#for channel_name, channel_id in channels.items():
-#    pass_branch = 'pass_' + channel_name
-#    df = df.Define(pass_branch, '''TriggerMatchProvider::GetDefault().Pass({}, run, tau_eta, tau_phi, hlt_accept, {},
-#                   hltObj_types, hltObj_pt, hltObj_eta, hltObj_phi, hltObj_hasPathName, filter_hltObj, filter_hash,
-#                   l1Tau_pt, l1Tau_hwIso)'''.format(channel_id, deltaRThr))
-#    skimmed_branches.append(pass_branch)
-
+for channel_name, channel_id in channels.items():
+    pass_branch = 'pass_' + channel_name
+    df = df.Define(pass_branch, '''TriggerMatchProvider::GetDefault().Pass({}, run, tau_eta, tau_phi, hlt_accept, {},
+                   hltObj_types, hltObj_pt, hltObj_eta, hltObj_phi, hltObj_hasPathName, filter_hltObj, filter_hash
+                   )'''.format(channel_id, deltaRThr))
+    skimmed_branches.append(pass_branch)
+print("CHECK POINT 13")
 df.Snapshot('Events', args.output, ListToStdVector(skimmed_branches))
+print("CHECK POINT 14")

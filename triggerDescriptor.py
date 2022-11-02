@@ -24,3 +24,8 @@ class TriggerLeg:
     
     def __init__(self):
         self.name = "triggerleg"
+        
+class TriggerResult:
+    
+    def __init__(self):
+        self.name = "trigresult"

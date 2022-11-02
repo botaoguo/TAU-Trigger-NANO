@@ -19,24 +19,33 @@ class summaryProducer(Module):
         self.tot_evt_genweight = 0
         
         self.summary = R.TTree("summary", "summary")
-        # cutflow hist
-        #self.cutflow_hist = R.TH1F('cutflow','Cutflow',20,0,20)
-        #self.cutflow_assigned = 0
         pass
     
     def beginJob(self, histFile=None, histDirName=None):
-        #self.summary = OutputTree(inputFile, "summary", "summary")
         trigFile = './2018trigger.json'
         hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
-        index = array("i", [0])
-        #pattern = 'HLT'
-        self.summary.Branch("trigger_index", index, "trigger_index/I")
-        #self.summary.Branch("trigger_pattern", pattern, "trigger_pattern/I")
+        filtName_sel = self.getFilterName('./2018filterName.txt', False)
+        filtHash_sel = self.getFilterName('./2018filterHash.txt', True) 
+
+        index = R.std.vector('unsigned int')()
+        pattern = R.std.vector('string')()
+        filt_hash = R.std.vector('unsigned int')()
+        filt_name = R.std.vector('string')()
+        
+        for _n in range( len(filtName_sel) ):
+            filt_name.push_back( filtName_sel[_n] )
+        for _h in range( len(filtHash_sel) ):
+            #print("filter_Hash : ", filtHash_sel[_h])
+            filt_hash.push_back( int(filtHash_sel[_h]) )
         for _i, _hltp in enumerate(hltPaths):
-            index[0] = _i
-            pattern = _hltp[3]
-            #self.summary.GetXaxis().SetBinLabel(_i , pattern)
-            self.summary.Fill()
+            index.push_back(_i)
+            pattern.push_back(_hltp[3])
+        
+        self.summary.Branch("filter_name", filt_name)
+        self.summary.Branch("filter_hash", filt_hash)
+        self.summary.Branch("trigger_index", index)
+        self.summary.Branch("trigger_pattern", pattern)
+        self.summary.Fill()
         pass
     
     def endJob(self):
@@ -50,7 +59,6 @@ class summaryProducer(Module):
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.summary.Write()
-        #self.cutflow_hist.Write()
         pass
 
     def fill_cut(self, cutnm):
@@ -61,6 +69,18 @@ class summaryProducer(Module):
             self.cutflow_hist.SetBinContent( self.cutflow_assigned, 1 )
         else:
             self.cutflow_hist.SetBinContent( _ibin, self.cutflow_hist.GetBinContent(_ibin) + 1 )
+
+    def getFilterName(self, filt_nm_file, ishash):
+        _filt_sel = []
+        if ishash:
+            for line in open(filt_nm_file, 'r'):
+                rs = line.rstrip('\n')
+                _filt_sel.append(rs)
+        else:
+            for line in open(filt_nm_file, 'r'):
+                rs = line.rstrip('\n')
+                _filt_sel.append(rs)
+        return _filt_sel
 
     def analyze(self, event):
         # process event, return True (go to next module) or False (fail, go to next event)
@@ -75,7 +95,8 @@ class summaryProducer(Module):
         self.tot_evt_genweight += generator.weight
         #self.fill_cut('tot_evt')
 
-        if self.ctr_evt_processed % 10000 ==0:
+        if self.ctr_evt_processed % 5000 ==0:
+            #exit(0)
             print("Processed evt = {}".format(self.ctr_evt_processed))
 
         return True

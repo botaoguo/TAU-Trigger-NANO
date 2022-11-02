@@ -6,10 +6,11 @@ import selectionFilter
 from summaryProducer import *
 import ROOT as R
 import math
+import re
 
 import triggerDescriptor as trig
 
-from triggerDescriptor import TriggerDescriptor,TriggerLeg
+from triggerDescriptor import TriggerDescriptor,TriggerLeg,TriggerResult
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
@@ -24,12 +25,42 @@ class tupleProducer(Module):
         # producer hist
         self.producer_hist = R.TH1F('producer_selection','producer_selection',20,0,20)
         self.producer_assigned = 0
+        
+        #self.hltevent = R.TTree("hltevent", "hltevent")
         pass
     
     def beginJob(self, histFile=None, histDirName=None):
         pass
     
     def endJob(self):
+        '''
+        hltObj_types = R.std.vector('unsigned int')()
+        hltObj_pt    = R.std.vector('float')()
+        hltObj_eta   = R.std.vector('float')()
+        hltObj_phi   = R.std.vector('float')()
+        hltObj_hasPathName = R.std.vector('ULong64_t')()
+        filter_hltObj = R.std.vector('unsigned int')()
+        filter_hash   = R.std.vector('unsigned int')()
+        for _i, _match_entry in enumerate(self.tauTriggerMatch.matchResults):
+            hlt_obj = trigobjs[_match_entry[0]]     # _match_entry[0] stands hltObjIndex
+            hltObj_types.push_back(_match_entry[1]) # _match_entry[1] stands objType
+            hltObj_pt.push_back(hlt_obj.pt)
+            hltObj_eta.push_back(hlt_obj.eta)
+            hltObj_phi.push_back(hlt_obj.phi)
+            hltObj_hasPathName.push_back(_match_entry[2]) # _match_entry[2] stands hasPathName
+            # only one bits ? TrigObj_filterBits
+            filter_hltObj.push_back(hltObj_pt.size() - 1)
+            filter_hash.push_back(hlt_obj.filterBits)
+        
+        self.hltevent.Branch("hltObj_types", self.hltObj_types)
+        self.hltevent.Branch("hltObj_pt", self.hltObj_pt)
+        self.hltevent.Branch("hltObj_eta", self.hltObj_eta)
+        self.hltevent.Branch("hltObj_phi", self.hltObj_phi)
+        self.hltevent.Branch("hltObj_hasPathName", self.hltObj_hasPathName)
+        self.hltevent.Branch("filter_hltObj", self.filter_hltObj)
+        self.hltevent.Branch("filter_hash", self.filter_hash)
+        self.hltevent.Fill()
+        '''
         pass
     
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
@@ -87,9 +118,49 @@ class tupleProducer(Module):
         self.out.branch("tau_gen_charge", "I")
         self.out.branch("tau_sel", "I")
         self.out.branch("vis_mass", "F")
+        
+        self.out.branch("hlt_accept", "l")
+        self.out.branch("hlt_acceptAndMatch", "l")
+        
+        
+        self.out.branch("hltObj_types", "l", 1, "nTrigObj")        # "l" stands a 64bit unsigned integer (ULong64_t)
+        self.out.branch("hltObj_pt", "F", 1, "nTrigObj")           # "g" stands a long unsigned integer, stored as 64 bit (ULong_t)
+        self.out.branch("hltObj_eta", "F", 1, "nTrigObj")
+        self.out.branch("hltObj_phi", "F", 1, "nTrigObj")
+        self.out.branch("hltObj_hasPathName", "l", 1, "nTrigObj")  # maybe hasPathName show be "g" ? 
+        self.out.branch("filter_hltObj", "l", 1, "nTrigObj")
+        self.out.branch("filter_hash", "l", 1, "nTrigObj")
+        
+
+        # test for input tree to get HLT result
+        self.inTree = inputTree
+        self.trig_sel = self.getTriggerName(self.inTree)
+        #TriggerResults = self.getTriggerResult(inputTree)
+        #for i in range( len(TriggerResults) ):
+        #    print(TriggerResults[i])
+        #exit(0)
+        
+    def getTriggerResult(self, trig_sel, HLT):
+        trig_result_sel = []
+        for i in range(0, len(trig_sel)):
+            #print(trig_sel[i])
+            br = trig_sel[i][4:]
+            #print(getattr(HLT, br))
+            trig_result_sel.append( (trig_sel[i], getattr(HLT, br)) )   # triggerResult
+        return trig_result_sel
+    
+    def getTriggerName(self, inTree):
+        trig_name_sel = []
+        for i in range(0, inTree.GetListOfBranches().GetSize()):
+            br = inTree.GetListOfBranches().At(i).GetName()
+            if "HLT_" in br:
+                trig_name_sel.append(br)
+        return trig_name_sel
                 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        #self.hltevent.Fill()
         self.producer_hist.Write()
+        #self.hltevent.Write()
         pass
 
     def fill_cut(self, cutnm):
@@ -108,6 +179,45 @@ class tupleProducer(Module):
                     return True
         return False
 
+    def updateGlobalIndices(self, trig_sel, descs):
+        global_pos = []                   # global_pos[x][0] -> globalToPos , global_pos[x][1] -> posToGlobal
+        for _pos in range( len(descs) ):    
+            #print("Test!")    
+            descs[_pos].global_index = -1    # descs[_pos] = desc
+            for global_index in range( len(trig_sel) ):
+                regex_match = re.match(descs[_pos].regex, trig_sel[global_index])
+                #print("#####")
+                #print("descs[_pos].regex = {}".format(descs[_pos].regex))
+                #print("trig_sel[global_index] = {}".format(trig_sel[global_index]))
+                if regex_match:
+                    # if trigger matches with two path patterns, raise error
+                    if global_index in (global_pos[x][0] for x in range( len(global_pos) ) ):
+                        idx = 0
+                        for _id in range( len(global_pos) ):
+                            if (global_index == global_pos[_id][0]):
+                                idx = _id
+                                break
+                        raise RuntimeError("Trigger '%1%' matches with two path patterns: '%2%' and '%3%'. " % trig_sel[global_index] % descs[global_pos[idx][0]][0].path % descs[_pos][0].path)
+                    # if path pattern matches with two triggers, raise error
+                    if _pos in (global_pos[x][1] for x in range( len(global_pos) )):
+                        p = 0
+                        for _ip in range( len(global_pos) ):
+                            if (_pos == global_pos[_ip][1]):
+                                p = _ip
+                                break
+                        raise RuntimeError("Path pattern '%1%' matches with two triggers: '%2%' and '%3%'. " % descs[_pos][0].path % trig_sel[global_pos[p][1]] % trig_sel[global_index])
+                    global_pos.append( (global_index, _pos) )    # pair with global and pos
+                    #print("global_index : {}".format(global_index))
+                    descs[_pos].global_index = global_index
+        return descs, global_pos
+
+    '''def getTriggerName(self, trig_nm_file):
+        _trig_sel = []
+        for line in open(trig_nm_file, 'r'):
+            rs = line.rstrip('\n')
+            _trig_sel.append(rs)
+        return _trig_sel'''
+
     def triggerDescriptorCollection(self, trig_vpset):
         Leg_Type = dict()
         Leg_Type['e'] = 1
@@ -116,22 +226,23 @@ class tupleProducer(Module):
         Leg_Type['jet'] = 8
         if len(trig_vpset) > 64:
             raise RuntimeError("The max number of triggers is exceeded.")
-        descs = []    # return (desc, desc_index)
+        #descs = R.std.vector()()    # return desc
+        descs = []
         tag_desc = []
         for _i, _pset in enumerate(trig_vpset):
             desc = TriggerDescriptor()
-            desc.path = _pset[3]    # _pset[3] correspnds path
-            desc.is_tag = _pset[1]
+            desc.path = _pset[3][:-2]    # _pset[3] correspnds path : HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v     
+            desc.is_tag = _pset[1]  #  or _pset[3][:-2]   path : HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1
             leg_types = _pset[2]
             filters = _pset[0]
             #print("leg_type len: {}".format(len(leg_types)))
             #print("filters len: {}".format(len(filters)))
-            if desc.path in (descs[_x][0].path for _x in range( len(descs) )):
+            if desc.path in (descs[_x].path for _x in range( len(descs) )):
                 raise RuntimeError("Duplicated trigger path = '%s'" % desc.path)
             if len(leg_types) != len(filters):
                 raise RuntimeError("Inconsitent leg_types and filters for trigger path = '%s'" % desc.path)
             #print("desc.path : ", desc.path)
-            desc.regex = "^" + desc.path + "[0-9]+$"
+            desc.regex = "^" + desc.path + "[0-9]*$"
             desc.type_mask = 0
             desc.legs = []
             for _l, _leg_type in enumerate(leg_types):
@@ -140,31 +251,81 @@ class tupleProducer(Module):
                 leg.filters = filters[_l]
                 desc.type_mask |= Leg_Type[_leg_type]
                 desc.legs.append(leg)
-            desc_index = _i
+            desc.index = _i
             #print("desc_index : {}".format(desc_index))
-            descs.append( (desc, desc_index) )
+            descs.append( desc )
             if desc.is_tag:
-                tag_desc.append(desc_index)
-        # test for descs
-        '''for _d, _desc in enumerate(descs):
-            print("This is desc {}".format(_d))
-            print("desc.path: {}".format(_desc[0].path))
-            for _l, _le in enumerate(_desc[0].legs): 
-                print("desc.leg {0} type = {1}".format(_l, _le.type))
-            print("desc.regex: {}".format(_desc[0].regex))
-            print("desc.type_mask: {}".format(_desc[0].type_mask))
-            print("************descs**************")
-        for _t, _ta in enumerate(tag_desc):
-            print("This is tag {}".format(_t))
-            print("tag_index : {}".format(_ta))
-            print("************tag**************")'''
+                tag_desc.append( _i )
         return descs, tag_desc
 
 
-    def matchTriggerObject(self, triggerResults, triggerObjects, muon_ref_p4, triggerNames, deltaR2Thr, include_tag_paths, include_nontag_paths):
-        #result = None
-        #obj_types = []
-        pass
+    def matchTriggerObject(self, descs, glo_pos_sel, triggerResults, triggerObjects, ref_p4, triggerNames, deltaR2Thr, include_tag_paths, include_nontag_paths):
+        #print("Yes!")
+        results = TriggerResult()
+        obj_types = R.std.vector('unsigned')()
+        for _i, _trig_obj in enumerate(triggerObjects):
+            obj_type = self.getTriggerObjectTypes(_trig_obj)
+            obj_types.push_back(obj_type)
+            
+        for desc_i in range(0, len(descs)):
+            if desc_i != descs[desc_i].index:
+                print("BUGBUGBUGBUGBUG!!!")
+            trig_desc = descs[desc_i]
+            if (not include_tag_paths) and (trig_desc.is_tag):
+                continue
+            if (not include_nontag_paths) and (not trig_desc.is_tag):
+                continue
+            if trig_desc.global_index < 0:
+                continue
+            # accept ??
+            #print("in json trig_desc path : {}".format(trig_desc.path))
+            for _i, res in enumerate(triggerResults):    # res --> (HLT_* , True/False)
+                if res[0] == trig_desc.path:
+                    Accept = res[1]
+                    #print("abcdefg")
+            results.accept = (desc_i, Accept)
+            results.acceptAndMatch = 0
+            #print( "type: {}".format( type(results.accept) ) )
+            dR2_bestMatch = deltaR2Thr
+            results.matchResults = []
+            for _idx, _trig_obj in enumerate(triggerObjects):
+                _trig_obj_p4 = R.TLorentzVector()
+                _trig_obj_p4.SetPtEtaPhiM(_trig_obj.pt, _trig_obj.eta, _trig_obj.phi, 0)
+                dR2 = self.deltaR2(ref_p4, _trig_obj_p4)
+                if dR2 >= deltaR2Thr:
+                    continue
+                # some confused thing in minoAOD tool : if(!hlt_obj.hasPathName(path_name, true, false)) continue;
+                if (obj_types.at(_idx) & trig_desc.type_mask) != 0:       # 1100 & 0110 --> 0100 
+                    if dR2 < dR2_bestMatch:
+                        best_matched_obj_index = _idx
+                        dR2_bestMatch = dR2
+                    results.acceptAndMatch = desc_i
+                # matchResults --> (hltObjIndex, objType, hasPathName, filters)
+                hltObjIndex = _idx
+                objType = obj_types.at(_idx)
+                hasPathName = desc_i
+                #print("hasPathName: {}".format(hasPathName))
+                filters = _trig_obj.filterBits
+                results.matchResults.append( (hltObjIndex, objType, hasPathName, filters) )
+        #exit(0)
+        return results
+
+    def getTriggerObjectTypes(self, trig_obj):
+        _type = 0
+        Leg_Type = dict()
+        Leg_Type['e'] = 1
+        Leg_Type['mu'] = 2
+        Leg_Type['tau'] = 4
+        Leg_Type['jet'] = 8
+        if trig_obj.id == 11:
+            _type |= Leg_Type['e']
+        if trig_obj.id == 13:
+            _type |= Leg_Type['mu']
+        if trig_obj.id == 15:
+            _type |= Leg_Type['tau']
+        if trig_obj.id == 1:
+            _type |= Leg_Type['jet']
+        return _type
 
     def deltaR2(self, l1_v4, l2_v4):
         dphi = l1_v4.Phi() - l2_v4.Phi()
@@ -435,14 +596,15 @@ class tupleProducer(Module):
         deltaR2Thr = 0.5*0.5
         sele_tau = None        
 
+        self.fill_cut('total')
+
         if self.isMC:
             pass
             #genWeight = ...
                         
         # collect gen leptons
         genleptons = self.collectGenLeptons(genparts)
-        self.count += 1
-        print("**********")
+        #print("**********")
         
         # has muon
         signal_muon_sel = []
@@ -457,15 +619,37 @@ class tupleProducer(Module):
             #else:
                 #print("gen muon is None")
             has_muon = True
+
+        if not has_muon:
+            return False
+        self.fill_cut('has_muon')
         
         # tag trigger match
+        
         # TODO
+        # trigger name ???
+        TriggerResults = self.getTriggerResult(self.trig_sel, HLT)
+        #trig_sel = TriggerResults
+        
+        # hlt_Paths
         trigFile = './2018trigger.json'
         #hltPaths, tagHltPaths = TriggerConfig.LoadAsVPSet(trigFile)
         hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
         triggerDescriptor, tag_trig = self.triggerDescriptorCollection(hltPaths)
-        #muonTriggerMatch = self.matchTriggerObject()
-        tag_trig_match = True
+        descs, glo_pos_sel = self.updateGlobalIndices(self.trig_sel, triggerDescriptor)
+        #exit(0)
+        muonTriggerMatch = self.matchTriggerObject(descs, glo_pos_sel, TriggerResults, trigobjs, signalMu_v4, self.trig_sel, deltaR2Thr, True, False)
+        # TODO
+        if isinstance( getattr(muonTriggerMatch, 'accept', -1), tuple):  # if true, muon trigger match is not none
+            tag_trig_match = True
+
+        if not tag_trig_match:
+            return False
+        self.fill_cut('tag_trig_match')
+
+        self.count += 1
+        #if self.count == 10:
+        #    exit(0)
 
         # sele tau as a list? (reco_tau, gen_tau, reco_tau_id)
         selected_taus, sel = self.collectTaus(signalMu_v4, taus, genleptons, deltaR2Thr)
@@ -485,12 +669,26 @@ class tupleProducer(Module):
             has_gen_tau = False
         else:
             has_gen_tau = (gen_tau.match != 6)
-        # btag veto
+        
+        if not has_tau:
+            return False
+        self.fill_cut('has_tau')
+        
+        # tau trigger match
+        # TODO
         tau_ref_p4 = R.TLorentzVector()
         if has_reco_tau:
             tau_ref_p4 = tau.p4()
         elif has_gen_tau:
             tau_ref_p4 = gen_tau.visible_p4
+        self.tauTriggerMatch = self.matchTriggerObject(descs, glo_pos_sel, TriggerResults, trigobjs, tau_ref_p4, self.trig_sel, deltaR2Thr, True, True)
+        #if isinstance( getattr(self.tauTriggerMatch, 'accept', -1), tuple):
+        #    print("MATCH TAU!!!")
+        accept_tuple = self.tauTriggerMatch.accept
+        #print("accept : {}".format( 2**accept_tuple[0] ))
+        #print("acceptAndMatch : {}".format( 2**(self.tauTriggerMatch.acceptAndMatch) ))
+        
+        # btag veto
         btagThreshold = 0.9
         if btagThreshold > 0:
             for _jet in jets:
@@ -499,116 +697,143 @@ class tupleProducer(Module):
                     btag_veto = True
                     break
 
-        self.fill_cut('total')
-        if has_muon:
-            self.fill_cut('has_muon')
-            if tag_trig_match:
-                self.fill_cut('tag_trig_match')
-                if has_tau:
-                    self.fill_cut('has_tau')
-                    if not btag_veto:
-                        self.fill_cut('btag_veto')
-                        # fill muon and gen muon
-                        if (gen_muon is not None):
-                            self.out.fillBranch("muon_gen_match", gen_muon.match)
-                            self.out.fillBranch("muon_gen_pt",gen_muon.p4().Pt())
-                            self.out.fillBranch("muon_gen_eta",gen_muon.p4().Eta())
-                            self.out.fillBranch("muon_gen_phi",gen_muon.p4().Phi())
-                            self.out.fillBranch("muon_gen_mass",gen_muon.p4().M())
-                            self.out.fillBranch("muon_gen_charge",(-gen_muon.pdgId) / abs(gen_muon.pdgId) )
-                        else:
-                            self.out.fillBranch("muon_gen_match", 6)
-                            self.out.fillBranch("muon_gen_pt", -999.0)
-                            self.out.fillBranch("muon_gen_eta", -999.0)
-                            self.out.fillBranch("muon_gen_phi", -999.0)
-                            self.out.fillBranch("muon_gen_mass", -999.0)
-                            self.out.fillBranch("muon_gen_charge", -999)
-                        if len(signal_muon_sel) >=1:
-                            self.out.fillBranch("muon_pt",signalMu_v4.Pt())
-                            self.out.fillBranch("muon_eta",signalMu_v4.Eta())
-                            self.out.fillBranch("muon_phi",signalMu_v4.Phi())
-                            self.out.fillBranch("muon_mass",signalMu_v4.M())
-                            self.out.fillBranch("muon_iso",signalMu.pfRelIso04_all)
-                            self.out.fillBranch("muon_charge",signalMu.charge)
-                            self.out.fillBranch("muon_mt",sele_filt.calc_MT(signalMu_v4,sele_filt.calc_met(met)))
-                        else:
-                            self.out.fillBranch("muon_pt", -999.0)
-                            self.out.fillBranch("muon_eta", -999.0)
-                            self.out.fillBranch("muon_phi", -999.0)
-                            self.out.fillBranch("muon_mass", -999.0)
-                            self.out.fillBranch("muon_iso", -999.0)
-                            self.out.fillBranch("muon_charge", -999)
-                            self.out.fillBranch("muon_mt", -999.0)
-                        # fill gen tau
-                        if has_gen_tau:
-                            self.out.fillBranch("tau_gen_vis_pt", gen_tau.visible_p4.Pt())
-                            self.out.fillBranch("tau_gen_vis_eta", gen_tau.visible_p4.Eta())
-                            self.out.fillBranch("tau_gen_vis_phi", gen_tau.visible_p4.Phi())
-                            self.out.fillBranch("tau_gen_vis_mass", gen_tau.visible_p4.M())
-                            
-                            self.out.fillBranch("tau_gen_rad_pt", gen_tau.visible_rad_p4.Pt())
-                            self.out.fillBranch("tau_gen_rad_eta", gen_tau.visible_rad_p4.Eta())
-                            self.out.fillBranch("tau_gen_rad_phi", gen_tau.visible_rad_p4.Phi())
-                            self.out.fillBranch("tau_gen_rad_energy", gen_tau.visible_rad_p4.E())
-                            
-                            self.out.fillBranch("tau_gen_n_gammas", gen_tau.n_gammas)
-                            self.out.fillBranch("tau_gen_n_gammas_rad", gen_tau.n_gammas_rad)
-                            self.out.fillBranch("tau_gen_charge", (-gen_tau.pdgId) / abs(gen_tau.pdgId) )
-                            self.out.fillBranch("tau_gen_match", gen_tau.match)
-                        else:
-                            self.out.fillBranch("tau_gen_vis_pt", -999.0)
-                            self.out.fillBranch("tau_gen_vis_eta", -999.0)
-                            self.out.fillBranch("tau_gen_vis_phi", -999.0)
-                            self.out.fillBranch("tau_gen_vis_mass", -999.0)
-                            
-                            self.out.fillBranch("tau_gen_rad_pt", -999.0)
-                            self.out.fillBranch("tau_gen_rad_eta", -999.0)
-                            self.out.fillBranch("tau_gen_rad_phi", -999.0)
-                            self.out.fillBranch("tau_gen_rad_energy", -999.0)
-                            
-                            self.out.fillBranch("tau_gen_n_gammas", -999)
-                            self.out.fillBranch("tau_gen_n_gammas_rad", -999)
-                            self.out.fillBranch("tau_gen_charge", -999)
-                            self.out.fillBranch("tau_gen_match", 6)
-                        # fill tau
-                        self.out.fillBranch("tau_sel", sel)
-                        if has_reco_tau:
-                            self.out.fillBranch("tau_pt", tau.p4().Pt())
-                            self.out.fillBranch("tau_eta", tau.p4().Eta())
-                            self.out.fillBranch("tau_phi", tau.p4().Phi())
-                            self.out.fillBranch("tau_mass", tau.p4().M())
-                            self.out.fillBranch("tau_charge", tau.charge)
-                            self.out.fillBranch("tau_decayMode", tau.decayMode)
-                            self.out.fillBranch("tau_dxy", tau.dxy)
-                            self.out.fillBranch("tau_dz", tau.dz)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSe", tau.idDeepTau2017v2p1VSe)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSmu", tau.idDeepTau2017v2p1VSmu)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSjet", tau.idDeepTau2017v2p1VSjet)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSe", tau.rawDeepTau2017v2p1VSe)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSmu", tau.rawDeepTau2017v2p1VSmu)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSjet", tau.rawDeepTau2017v2p1VSjet)
-                        else:
-                            self.out.fillBranch("tau_pt", -999.0)
-                            self.out.fillBranch("tau_eta", -999.0)
-                            self.out.fillBranch("tau_phi", -999.0)
-                            self.out.fillBranch("tau_mass", -999.0)
-                            self.out.fillBranch("tau_charge", -999)
-                            self.out.fillBranch("tau_decayMode", -999)
-                            self.out.fillBranch("tau_dxy", -999.0)
-                            self.out.fillBranch("tau_dz", -999.0)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSe", -999)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSmu", -999)
-                            self.out.fillBranch("tau_idDeepTau2017v2p1VSjet", -999)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSe", -999.0)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSmu", -999.0)
-                            self.out.fillBranch("tau_rawDeepTau2017v2p1VSjet", -999.0)
-                        # fill visible mass
-                        self.out.fillBranch("vis_mass", (signalMu_v4 + tau_ref_p4).M())
-                        # fill other
-                        self.out.fillBranch("npu", pu.nPU)
-                        self.out.fillBranch("npv", pv.npvs)
-                        return True
-        return False
+        if btag_veto:
+            return False
+        self.fill_cut('btag_veto')
+
+        # fill muon and gen muon
+        if (gen_muon is not None):
+            self.out.fillBranch("muon_gen_match", gen_muon.match)
+            self.out.fillBranch("muon_gen_pt",gen_muon.p4().Pt())
+            self.out.fillBranch("muon_gen_eta",gen_muon.p4().Eta())
+            self.out.fillBranch("muon_gen_phi",gen_muon.p4().Phi())
+            self.out.fillBranch("muon_gen_mass",gen_muon.p4().M())
+            self.out.fillBranch("muon_gen_charge",(-gen_muon.pdgId) / abs(gen_muon.pdgId) )
+        else:
+            self.out.fillBranch("muon_gen_match", 6)
+            self.out.fillBranch("muon_gen_pt", -999.0)
+            self.out.fillBranch("muon_gen_eta", -999.0)
+            self.out.fillBranch("muon_gen_phi", -999.0)
+            self.out.fillBranch("muon_gen_mass", -999.0)
+            self.out.fillBranch("muon_gen_charge", -999)
+        if len(signal_muon_sel) >=1:
+            self.out.fillBranch("muon_pt",signalMu_v4.Pt())
+            self.out.fillBranch("muon_eta",signalMu_v4.Eta())
+            self.out.fillBranch("muon_phi",signalMu_v4.Phi())
+            self.out.fillBranch("muon_mass",signalMu_v4.M())
+            self.out.fillBranch("muon_iso",signalMu.pfRelIso04_all)
+            self.out.fillBranch("muon_charge",signalMu.charge)
+            self.out.fillBranch("muon_mt",sele_filt.calc_MT(signalMu_v4,sele_filt.calc_met(met)))
+        else:
+            self.out.fillBranch("muon_pt", -999.0)
+            self.out.fillBranch("muon_eta", -999.0)
+            self.out.fillBranch("muon_phi", -999.0)
+            self.out.fillBranch("muon_mass", -999.0)
+            self.out.fillBranch("muon_iso", -999.0)
+            self.out.fillBranch("muon_charge", -999)
+            self.out.fillBranch("muon_mt", -999.0)
+        # fill gen tau
+        if has_gen_tau:
+            self.out.fillBranch("tau_gen_vis_pt", gen_tau.visible_p4.Pt())
+            self.out.fillBranch("tau_gen_vis_eta", gen_tau.visible_p4.Eta())
+            self.out.fillBranch("tau_gen_vis_phi", gen_tau.visible_p4.Phi())
+            self.out.fillBranch("tau_gen_vis_mass", gen_tau.visible_p4.M())
+            
+            self.out.fillBranch("tau_gen_rad_pt", gen_tau.visible_rad_p4.Pt())
+            self.out.fillBranch("tau_gen_rad_eta", gen_tau.visible_rad_p4.Eta())
+            self.out.fillBranch("tau_gen_rad_phi", gen_tau.visible_rad_p4.Phi())
+            self.out.fillBranch("tau_gen_rad_energy", gen_tau.visible_rad_p4.E())
+            
+            self.out.fillBranch("tau_gen_n_gammas", gen_tau.n_gammas)
+            self.out.fillBranch("tau_gen_n_gammas_rad", gen_tau.n_gammas_rad)
+            self.out.fillBranch("tau_gen_charge", (-gen_tau.pdgId) / abs(gen_tau.pdgId) )
+            self.out.fillBranch("tau_gen_match", gen_tau.match)
+        else:
+            self.out.fillBranch("tau_gen_vis_pt", -999.0)
+            self.out.fillBranch("tau_gen_vis_eta", -999.0)
+            self.out.fillBranch("tau_gen_vis_phi", -999.0)
+            self.out.fillBranch("tau_gen_vis_mass", -999.0)
+            
+            self.out.fillBranch("tau_gen_rad_pt", -999.0)
+            self.out.fillBranch("tau_gen_rad_eta", -999.0)
+            self.out.fillBranch("tau_gen_rad_phi", -999.0)
+            self.out.fillBranch("tau_gen_rad_energy", -999.0)
+            
+            self.out.fillBranch("tau_gen_n_gammas", -999)
+            self.out.fillBranch("tau_gen_n_gammas_rad", -999)
+            self.out.fillBranch("tau_gen_charge", -999)
+            self.out.fillBranch("tau_gen_match", 6)
+        # fill tau
+        self.out.fillBranch("tau_sel", sel)
+        if has_reco_tau:
+            self.out.fillBranch("tau_pt", tau.p4().Pt())
+            self.out.fillBranch("tau_eta", tau.p4().Eta())
+            self.out.fillBranch("tau_phi", tau.p4().Phi())
+            self.out.fillBranch("tau_mass", tau.p4().M())
+            self.out.fillBranch("tau_charge", tau.charge)
+            self.out.fillBranch("tau_decayMode", tau.decayMode)
+            self.out.fillBranch("tau_dxy", tau.dxy)
+            self.out.fillBranch("tau_dz", tau.dz)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSe", tau.idDeepTau2017v2p1VSe)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSmu", tau.idDeepTau2017v2p1VSmu)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSjet", tau.idDeepTau2017v2p1VSjet)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSe", tau.rawDeepTau2017v2p1VSe)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSmu", tau.rawDeepTau2017v2p1VSmu)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSjet", tau.rawDeepTau2017v2p1VSjet)
+        else:
+            self.out.fillBranch("tau_pt", -999.0)
+            self.out.fillBranch("tau_eta", -999.0)
+            self.out.fillBranch("tau_phi", -999.0)
+            self.out.fillBranch("tau_mass", -999.0)
+            self.out.fillBranch("tau_charge", -999)
+            self.out.fillBranch("tau_decayMode", -999)
+            self.out.fillBranch("tau_dxy", -999.0)
+            self.out.fillBranch("tau_dz", -999.0)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSe", -999)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSmu", -999)
+            self.out.fillBranch("tau_idDeepTau2017v2p1VSjet", -999)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSe", -999.0)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSmu", -999.0)
+            self.out.fillBranch("tau_rawDeepTau2017v2p1VSjet", -999.0)
+        # fill visible mass
+        self.out.fillBranch("vis_mass", (signalMu_v4 + tau_ref_p4).M())
+        # fill other
+        self.out.fillBranch("npu", pu.nPU)
+        self.out.fillBranch("npv", pv.npvs)
+        # fill trigger sth ?
+        self.out.fillBranch("hlt_accept", 2**accept_tuple[0])
+        self.out.fillBranch("hlt_acceptAndMatch", 2**(self.tauTriggerMatch.acceptAndMatch))
+        
+        
+        hltObj_types = R.std.vector('unsigned int')()
+        hltObj_pt    = R.std.vector('float')()
+        hltObj_eta   = R.std.vector('float')()
+        hltObj_phi   = R.std.vector('float')()
+        hltObj_hasPathName = R.std.vector('ULong64_t')()
+        filter_hltObj = R.std.vector('unsigned int')()
+        filter_hash   = R.std.vector('unsigned int')()
+        for _i, _match_entry in enumerate(self.tauTriggerMatch.matchResults):
+            hlt_obj = trigobjs[_match_entry[0]]     # _match_entry[0] stands hltObjIndex
+            hltObj_types.push_back(_match_entry[1]) # _match_entry[1] stands objType
+            hltObj_pt.push_back(hlt_obj.pt)
+            hltObj_eta.push_back(hlt_obj.eta)
+            hltObj_phi.push_back(hlt_obj.phi)
+            hltObj_hasPathName.push_back(_match_entry[2]) # _match_entry[2] stands hasPathName
+            # only one bits ? TrigObj_filterBits
+            filter_hltObj.push_back(hltObj_pt.size() - 1)
+            filter_hash.push_back(hlt_obj.filterBits)
+        
+        self.out.fillBranch("hltObj_types", hltObj_types)
+        self.out.fillBranch("hltObj_pt", hltObj_pt)
+        self.out.fillBranch("hltObj_eta", hltObj_eta)
+        self.out.fillBranch("hltObj_phi", hltObj_phi)
+        self.out.fillBranch("hltObj_hasPathName", 2**hltObj_hasPathName)
+        self.out.fillBranch("filter_hltObj", filter_hltObj)
+        self.out.fillBranch("filter_hash", filter_hash)
+        #self.hltevent.Fill()
+        
+        print("**********")
+        return True
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 

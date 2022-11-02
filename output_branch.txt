@@ -8,8 +8,11 @@ keep *vis*
 #keep HLT*
 #keep MET*
 #keep Gen*
+keep n*
 keep run
 keep lumi
 keep event
-keep *pass*
 keep *weight*
+keep hlt*
+keep filter_hltObj
+keep filter_hash
