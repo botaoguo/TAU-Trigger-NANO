@@ -13,5 +13,5 @@ Then, it will output a event tuple which named nanoAOD_Skim.root
 
 Activate ROOT env in conda base env to run the skimTuple.py
 ```
-python skimTuple.py --input nanoAOD-2018MC_Skim.root --config ./2018trigger.json --selection DeepTau --output test.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root
+python skimTuple.py --input nanoAOD_Skim.root --config ./2018trigger.json --selection DeepTau --output test.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root
 ```
