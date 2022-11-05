@@ -52,7 +52,25 @@ def main():
     #)
     
     #Modules = [tuple2017MC()]
-    Modules = [summary2018MC(), selection2018MC(), tuple2018MC()]
+    if isMC:
+        if era == '2016':
+            Modules = [summary2016MC(), selection2016MC(), tuple2016MC()]
+        elif era == '2017':
+            Modules = [summary2017MC(), selection2017MC(), tuple2017MC()]
+        elif era == '2018':
+            Modules = [summary2018MC(), selection2018MC(), tuple2018MC()]
+        else:
+            raise RuntimeError("Please check the right Year!")
+    else:
+        if era == '2016':
+            Modules = [summary2016data(), selection2016data(), tuple2016data()]
+        elif era == '2017':
+            Modules = [summary2017data(), selection2017data(), tuple2017data()]
+        elif era == '2018':
+            Modules = [summary2018data(), selection2018data(), tuple2018data()]
+        else:
+            raise RuntimeError("Please check the right Year!")
+        
 
     p = PostProcessor(".", files, "1", 
                       branchsel = "keep_and_drop.txt", 

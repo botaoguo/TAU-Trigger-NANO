@@ -64,7 +64,7 @@ for channel_name, channel_trig_descs in channel_triggers.items():
         match_desc.match_mask = int(TriggerConfig.GetMatchMask(hlt_paths))
         print("CHECK POINT 9")
         filter_names = desc['filters'][-1]
-        match_desc.filter_hashes = ListToStdVector([ filter_dict[f] for f in filter_names ], elem_type='UInt_t')
+        #match_desc.filter_hashes = ListToStdVector([ filter_dict[f] for f in filter_names ], elem_type='UInt_t')
         print("CHECK POINT 10")
         if 'min_run' in desc and args.type == 'data':
             match_desc.min_run = desc['min_run']
@@ -97,7 +97,7 @@ else:
     df = df.Define('weight', "muon_charge != tau_charge ? 1. : -1.")
 
 skimmed_branches = [
-    'tau_pt', 'tau_eta', 'tau_phi', 'tau_mass', 'tau_charge', 'tau_decayMode',
+    'tau_pt', 'tau_eta', 'tau_phi', 'tau_mass', 'tau_charge', 'tau_decayMode', 'weight',
     'tau_idDeepTau2017v2p1VSjet'
 ]
 

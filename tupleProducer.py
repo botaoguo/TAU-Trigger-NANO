@@ -522,7 +522,11 @@ class tupleProducer(Module):
                 if pass_deep_sel and ( (deepTau not in best_tau.keys()) or (best_tau[deepTau].rawDeepTau2017v2p1VSjet < _tau.rawDeepTau2017v2p1VSjet) ):
                     best_tau[deepTau] = _tau
         #
-        selected_gen_tau = self.selectGenLeg(genleptons, True)
+        if genleptons is None:
+            selected_gen_tau = None
+        else:
+            selected_gen_tau = self.selectGenLeg(genleptons, True)
+        #
         if selected_gen_tau is None:
             has_selected_gen_tau = False
         else:
@@ -536,7 +540,10 @@ class tupleProducer(Module):
             reco_tau_id = _item[0]  # _item[0] means pt, mva, deepTau
             reco_tau = _item[1]     # _item[1] means best tau 's values
             if (selected_taus is None) or (reco_tau not in (selected_taus[_x][0] for _x in range( len(selected_taus) )) ):
-                gen_tau = self.lepton_gen_match(reco_tau, genleptons)
+                if genleptons is None:
+                    gen_tau = None
+                else:
+                    gen_tau = self.lepton_gen_match(reco_tau, genleptons)
                 if gen_tau is None:
                     has_gen_tau = False
                 else:
@@ -578,14 +585,19 @@ class tupleProducer(Module):
         jets = Collection(event, "Jet")
         met = Object(event, "MET")
         taus = Collection(event, "Tau")
-        genparts = Collection(event, "GenPart")     # gen particles ?
-        gendressedlep = Collection(event, "GenDressedLepton")    # gen leptons ?
-        gen_vis_taus = Collection(event, "GenVisTau")
+        #gendressedlep = Collection(event, "GenDressedLepton")    # gen leptons ?
+        #gen_vis_taus = Collection(event, "GenVisTau")
         generator = Object(event, "Generator")
         HLT = Object(event, "HLT")
-        pu = Object(event, "Pileup")
         pv = Object(event, "PV")
         trigobjs = Collection(event, "TrigObj")
+        if self.isMC:
+            pu = Object(event, "Pileup")
+            genparts = Collection(event, "GenPart")     # gen particles ?
+            # collect gen leptons
+            genleptons = self.collectGenLeptons(genparts)
+        else:
+            genleptons = None    # data no gen leptons
 
         signalMu = None
         signalMu_v4 = None
@@ -601,19 +613,20 @@ class tupleProducer(Module):
         if self.isMC:
             pass
             #genWeight = ...
-                        
-        # collect gen leptons
-        genleptons = self.collectGenLeptons(genparts)
+        
         #print("**********")
         
         # has muon
         signal_muon_sel = []
-        sele_filt = selectionFilter.selectionFilter(True,"2018")
+        sele_filt = selectionFilter.selectionFilter(self.isMC, self.era)
         signal_muon_sel = sele_filt.find_signal_muon(muons)
         signalMu_v4 = signal_muon_sel[0][0]     # muon_ref_p4
         signalMu = signal_muon_sel[0][1]
         if len(signal_muon_sel) >=1:
-            gen_muon = self.lepton_gen_match(signalMu, genleptons)
+            if self.isMC:
+                gen_muon = self.lepton_gen_match(signalMu, genleptons)
+            else:
+                gen_muon = None
             #if gen_muon is not None:
                 #print("gen_muon_match:{}".format(gen_muon.match))
             #else:
@@ -798,7 +811,10 @@ class tupleProducer(Module):
         # fill visible mass
         self.out.fillBranch("vis_mass", (signalMu_v4 + tau_ref_p4).M())
         # fill other
-        self.out.fillBranch("npu", pu.nPU)
+        if self.isMC:
+            self.out.fillBranch("npu", pu.nPU)
+        else:
+            self.out.fillBranch("npu", 0)
         self.out.fillBranch("npv", pv.npvs)
         # fill trigger sth ?
         self.out.fillBranch("hlt_accept", 2**accept_tuple[0])
@@ -827,7 +843,7 @@ class tupleProducer(Module):
         self.out.fillBranch("hltObj_pt", hltObj_pt)
         self.out.fillBranch("hltObj_eta", hltObj_eta)
         self.out.fillBranch("hltObj_phi", hltObj_phi)
-        self.out.fillBranch("hltObj_hasPathName", 2**hltObj_hasPathName)
+        self.out.fillBranch("hltObj_hasPathName", hltObj_hasPathName)
         self.out.fillBranch("filter_hltObj", filter_hltObj)
         self.out.fillBranch("filter_hash", filter_hash)
         #self.hltevent.Fill()

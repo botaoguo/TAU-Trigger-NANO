@@ -14,9 +14,8 @@ class summaryProducer(Module):
 
         self.isMC = isMC
         self.era = era
-        self.tot_evt = 0
         self.ctr_evt_processed = 0
-        self.tot_evt_genweight = 0
+        #self.tot_evt_genweight = 0
         
         self.summary = R.TTree("summary", "summary")
         pass
@@ -92,7 +91,7 @@ class summaryProducer(Module):
         generator = Object(event, "Generator")
 
         self.ctr_evt_processed += 1
-        self.tot_evt_genweight += generator.weight
+        #self.tot_evt_genweight += generator.weight
         #self.fill_cut('tot_evt')
 
         if self.ctr_evt_processed % 5000 ==0:

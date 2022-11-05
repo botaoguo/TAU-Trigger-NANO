@@ -4,6 +4,9 @@
 # jobs log
 *.log
 
+# jobs pdf
+*.pdf
+
 # some pyc
 *.pyc
 __pycache__/
