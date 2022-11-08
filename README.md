@@ -15,3 +15,8 @@ Activate ROOT env in conda base env to run the skimTuple.py
 ```
 python skimTuple.py --input nanoAOD_Skim.root --config ./2018trigger.json --selection DeepTau --output test.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root
 ```
+
+Run on CRAB
+```
+crab submit -c crab_cfg.py
+```

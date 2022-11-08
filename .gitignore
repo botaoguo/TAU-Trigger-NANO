@@ -10,3 +10,6 @@
 # some pyc
 *.pyc
 __pycache__/
+
+# some test
+*test*
