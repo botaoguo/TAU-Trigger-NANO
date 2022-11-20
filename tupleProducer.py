@@ -655,6 +655,10 @@ class tupleProducer(Module):
         # TODO
         if isinstance( getattr(muonTriggerMatch, 'accept', -1), tuple):  # if true, muon trigger match is not none
             tag_trig_match = True
+            
+        # add direct HLT_IsoMu27 judgement
+        if HLT.IsoMu27 < 0.5:
+            tag_trig_match = False
 
         if not tag_trig_match:
             return False

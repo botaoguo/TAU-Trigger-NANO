@@ -1,3 +1,7 @@
+# MC sample
+/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM
+
+nohup python postproc.py --input nanoMC-1.root --isMC 1 --era 2018 > nohup.log 2>&1 &
 # run event tuple using MC
 
 nohup python postproc.py --input nanoAOD-2018MC-2.root --isMC 1 --era 2018 > nohup.log 2>&1 &
