@@ -7,7 +7,7 @@ This tool is based on the CMS nanoAOD tool:
 https://github.com/cms-nanoAOD/nanoAOD-tools
 
 The input file nanoAOD.root can be found in DAS : 
-/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer19UL18NanoAOD-106X_upgrade2018_realistic_v11_L1v1-v1/NANOAODSIM
+/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM
 
 Then, it will output a event tuple which named nanoAOD_Skim.root
 
