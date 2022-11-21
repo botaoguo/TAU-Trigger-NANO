@@ -9,8 +9,12 @@ keep *vis*
 #keep MET*
 #keep Gen*
 keep TrigObj_*
-keep HLT_IsoMu27
-keep HLT_IsoMu24_eta2p1_*
+keep HLT_*
+keep HLT_IsoMu27*
+keep HLT_IsoMu24*
+keep HLT_IsoMu20*
+keep HLT_Ele24_eta2p1_*
+keep HLT_IsoMu20_eta2p1_LooseCharged*
 keep n*
 keep run
 keep lumi

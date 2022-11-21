@@ -14,7 +14,7 @@ config.JobType.scriptExe = 'crab_script.sh'
 #config.JobType.numCores = 1
 #config.JobType.maxMemoryMB = 2000
 # hadd nano will not be needed once nano tools are in cmssw
-config.JobType.inputFiles = ['crab_postproc.py', '../scripts/haddnano.py', 'summaryProducer.py', 'selectionFilter.py', 'tupleProducer.py', 'keep_and_drop.txt', 'output_branch.txt', 'triggerDescriptor.py', 'TriggerConfig.py', 'DAS_filesearch.py', '2018trigger.json', '2018filterName.txt', '2018filterHash.txt']
+config.JobType.inputFiles = ['crab_postproc.py', '../scripts/haddnano.py', 'summaryProducer.py', 'selectionFilter.py', 'tupleProducer.py', 'keep_and_drop.txt', 'output_branch.txt', 'triggerDescriptor.py', 'TriggerConfig.py', '2018trigger.json', '2018filterName.txt', '2018filterHash.txt']
 config.JobType.sendPythonFolder = True
 config.JobType.allowUndistributedCMSSW = True
 

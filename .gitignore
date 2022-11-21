@@ -10,6 +10,7 @@
 # some pyc
 *.pyc
 __pycache__/
+__init__*
 
 # some test
 *test*
