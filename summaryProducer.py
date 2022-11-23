@@ -21,27 +21,27 @@ class summaryProducer(Module):
         pass
     
     def beginJob(self, histFile=None, histDirName=None):
-        trigFile = './2018trigger.json'
+        trigFile = './{}trigger.json'.format(self.era)
         hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
-        filtName_sel = self.getFilterName('./2018filterName.txt', False)
-        filtHash_sel = self.getFilterName('./2018filterHash.txt', True) 
+        #filtName_sel = self.getFilterName('./2018filterName.txt', False)
+        #filtHash_sel = self.getFilterName('./2018filterHash.txt', True) 
 
         index = R.std.vector('unsigned int')()
         pattern = R.std.vector('string')()
-        filt_hash = R.std.vector('unsigned int')()
-        filt_name = R.std.vector('string')()
+        #filt_hash = R.std.vector('unsigned int')()
+        #filt_name = R.std.vector('string')()
         
-        for _n in range( len(filtName_sel) ):
-            filt_name.push_back( filtName_sel[_n] )
-        for _h in range( len(filtHash_sel) ):
+        #for _n in range( len(filtName_sel) ):
+        #    filt_name.push_back( filtName_sel[_n] )
+        #for _h in range( len(filtHash_sel) ):
             #print("filter_Hash : ", filtHash_sel[_h])
-            filt_hash.push_back( int(filtHash_sel[_h]) )
+            #filt_hash.push_back( int(filtHash_sel[_h]) )
         for _i, _hltp in enumerate(hltPaths):
             index.push_back(_i)
             pattern.push_back(_hltp[3])
         
-        self.summary.Branch("filter_name", filt_name)
-        self.summary.Branch("filter_hash", filt_hash)
+        #self.summary.Branch("filter_name", filt_name)
+        #self.summary.Branch("filter_hash", filt_hash)
         self.summary.Branch("trigger_index", index)
         self.summary.Branch("trigger_pattern", pattern)
         self.summary.Fill()

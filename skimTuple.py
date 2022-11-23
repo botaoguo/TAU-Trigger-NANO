@@ -60,11 +60,11 @@ else:
 
 skimmed_branches = [
     'tau_pt', 'tau_eta', 'tau_phi', 'tau_mass', 'tau_charge', 'tau_decayMode', 'weight', 
-    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1', 
+#    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1', 
     'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1', 
-    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1', 
-    'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1', 
-#    'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1',
+#    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1', 
+#    'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1', 
+    'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1',
 #    'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1',
     'tau_idDeepTau2017v2p1VSjet'
 ]
@@ -87,10 +87,10 @@ deltaRThr = 0.5
 #                   )'''.format(channel_id, deltaRThr))
 #    skimmed_branches.append(pass_branch)
 df = df.Define("pass_ditau", "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1 == 1")
-#df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[0] > 26 && TrigObj_l1iso[0] > 0")
-#df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1")
+df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[0] > 26 && TrigObj_l1iso[0] > 0")
+df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1")
 skimmed_branches.append("pass_ditau")
-#skimmed_branches.append("pass_etau")
-#skimmed_branches.append("pass_mutau")
+skimmed_branches.append("pass_etau")
+skimmed_branches.append("pass_mutau")
 
 df.Snapshot('Events', args.output, ListToStdVector(skimmed_branches))

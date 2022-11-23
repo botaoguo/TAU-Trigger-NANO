@@ -645,7 +645,7 @@ class tupleProducer(Module):
         #trig_sel = TriggerResults
         
         # hlt_Paths
-        trigFile = './2018trigger.json'
+        trigFile = './{}trigger.json'.format(self.era)
         #hltPaths, tagHltPaths = TriggerConfig.LoadAsVPSet(trigFile)
         hltPaths, tagHltPaths = trig.LoadAsList(trigFile)
         triggerDescriptor, tag_trig = self.triggerDescriptorCollection(hltPaths)
