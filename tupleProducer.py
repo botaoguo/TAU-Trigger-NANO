@@ -513,7 +513,10 @@ class tupleProducer(Module):
         for _t, _tau in enumerate(taus):
             _tau_v4 = _tau.p4()
             if (_tau_v4.Pt()) > 18 and (abs(_tau_v4.Eta()) < 2.3) and (self.deltaR2(signalMu_v4, _tau_v4) > deltaR2Thr):
-                pass_mva_sel = (_tau.rawMVAoldDM2017v2 > 0)    # and tau.tauID("againstMuonLoose3") > 0.5f ?
+                if (self.isMC == 0) and (self.era == "2018"):
+                    pass_mva_sel = False
+                else:
+                    pass_mva_sel = (_tau.rawMVAoldDM2017v2 > 0)    # and tau.tauID("againstMuonLoose3") > 0.5f ?
                 pass_deep_sel = ( (_tau.rawDeepTau2017v2p1VSjet > 0) and (_tau.idDeepTau2017v2p1VSe > 0.5) and (_tau.idDeepTau2017v2p1VSmu > 0.5) )
                 if (pass_mva_sel or pass_deep_sel) and ( (pt not in best_tau.keys()) or (best_tau[pt].p4().Pt() < _tau.p4().Pt()) ):
                     best_tau[pt] = _tau
@@ -852,7 +855,7 @@ class tupleProducer(Module):
         self.out.fillBranch("filter_hash", filter_hash)
         #self.hltevent.Fill()
         
-        print("**********")
+        #print("**********")
         return True
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed

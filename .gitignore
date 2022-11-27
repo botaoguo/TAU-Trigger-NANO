@@ -14,3 +14,8 @@ __init__*
 
 # some test
 *test*
+crab*/
+out/
+SingleMuon
+filelist/
+*output/

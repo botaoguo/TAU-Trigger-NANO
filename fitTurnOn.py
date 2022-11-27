@@ -148,6 +148,32 @@ for channel in channels:
                 data_color = 'k'
                 trans = 0.3
 
+                # test by botao
+                #print("mc low previous: {}".format(eff_mc.x_error_low))
+                #print("data low previous: {}".format(eff_data.x_error_low))
+                count = 0
+                for _i,_obj in enumerate(eff_data.x_error_low) :
+                    if _obj < 0:
+                        _obj == abs(_obj)
+                #for _i,_obj in enumerate(eff_data.x_error_high) :
+                #    if _obj < 0:
+                #        _obj == - _obj
+                count = 0
+                for _i,_obj in enumerate(eff_mc.x_error_low) :
+                    if _obj < 0:
+                        print("BUGBUGBUGBUG!")
+                        count = 1
+                        _obj == abs(_obj)
+                if count == 1:
+                    continue
+                #for _i,_obj in enumerate(eff_mc.x_error_high) :
+                #    if _obj < 0:
+                #        _obj == - _obj
+                #print("mc low: {}".format(eff_mc.x_error_low))
+                #print("mc high: {}".format(eff_mc.x_error_high))
+                #print("data low: {}".format(eff_data.x_error_low))
+                #print("data high: {}".format(eff_data.x_error_high))
+                # end test
                 plt_data = ax.errorbar(eff_data.x, eff_data.y, xerr=(eff_data.x_error_low, eff_data.x_error_high),
                                        yerr=(eff_data.y_error_low, eff_data.y_error_high), fmt=data_color+'.',
                                        markersize=5)

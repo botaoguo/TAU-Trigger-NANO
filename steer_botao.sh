@@ -1,3 +1,7 @@
+# event tuple for 2018
+nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/SingleMuon_Run2018B/nano_18.root --isMC 0 --era 2018 > nohup.log 2>&1 &
+
+
 # MC sample
 /DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM
 

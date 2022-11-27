@@ -67,7 +67,10 @@ class selectionFilter(Module):
             _mu_v4 = _muon.p4()
             if (_muon.mediumId) and (_mu_v4.Pt() > 24) and (abs(_mu_v4.Eta()) < 2.1) :
                 muon_sel.append( (_mu_v4, _muon, _m) )
-        muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
+        if (self.isMC == 0) and (self.era == "2018"):
+            muon_sel.sort(key=lambda x:(x[1].pfRelIso04_all, x[0].Pt()) ,reverse=True)
+        else:
+            muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
         return muon_sel
 
     def analyze(self, event):
@@ -118,11 +121,20 @@ class selectionFilter(Module):
             if (_m != signalMuon_num) and (_mu_v4.Pt() > 10) and (abs(_mu_v4.Eta()) < 2.4) and _muon.looseId :
                 has_other_muon = True
                 break
-        for _ele in electrons:
-            _ele_v4 = _ele.p4()
-            if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaFall17V2Iso_WPL > 0.5):
-                has_ele = True
-                break
+        
+        # Special for nanoV10 2018 Data
+        if (self.isMC == 0) and (self.era == "2018"):
+            for _ele in electrons:
+                _ele_v4 = _ele.p4()
+                if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaIso_WPL > 0.5):
+                    has_ele = True
+                    break
+        else:
+            for _ele in electrons:
+                _ele_v4 = _ele.p4()
+                if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaFall17V2Iso_WPL > 0.5):
+                    has_ele = True
+                    break
             
         # Apply MT cut (if enabled)
         if mtCut > 0:

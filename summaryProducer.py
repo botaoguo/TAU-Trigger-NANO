@@ -94,9 +94,9 @@ class summaryProducer(Module):
         #self.tot_evt_genweight += generator.weight
         #self.fill_cut('tot_evt')
 
-        if self.ctr_evt_processed % 5000 ==0:
-            #exit(0)
+        if self.ctr_evt_processed % 1000 ==0:
             print("Processed evt = {}".format(self.ctr_evt_processed))
+            #exit(0)
 
         return True
 
