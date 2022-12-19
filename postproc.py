@@ -84,7 +84,7 @@ def main():
             raise RuntimeError("Please check the right Year!")
         
 
-    p = PostProcessor("./SingleMuon2017B_output", files, "1", 
+    p = PostProcessor(".", files, "1", 
                       branchsel = "keep_and_drop.txt", 
                       modules= Modules, 
                       provenance=True,

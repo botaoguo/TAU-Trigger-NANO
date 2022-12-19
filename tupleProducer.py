@@ -513,15 +513,19 @@ class tupleProducer(Module):
         for _t, _tau in enumerate(taus):
             _tau_v4 = _tau.p4()
             if (_tau_v4.Pt()) > 18 and (abs(_tau_v4.Eta()) < 2.3) and (self.deltaR2(signalMu_v4, _tau_v4) > deltaR2Thr):
-                if (self.isMC == 0) and (self.era == "2018"):
-                    pass_mva_sel = False
+                if (self.isMC == 0) and (self.era == "2018" or self.era == "2017"):
+                    pass_mva_sel = (_tau.idDecayModeOldDMs > 0)
                 else:
                     pass_mva_sel = (_tau.rawMVAoldDM2017v2 > 0)    # and tau.tauID("againstMuonLoose3") > 0.5f ?
                 pass_deep_sel = ( (_tau.rawDeepTau2017v2p1VSjet > 0) and (_tau.idDeepTau2017v2p1VSe > 0.5) and (_tau.idDeepTau2017v2p1VSmu > 0.5) )
                 if (pass_mva_sel or pass_deep_sel) and ( (pt not in best_tau.keys()) or (best_tau[pt].p4().Pt() < _tau.p4().Pt()) ):
                     best_tau[pt] = _tau
-                if pass_mva_sel and ( (mva not in best_tau.keys()) or (best_tau[mva].rawMVAoldDM2017v2 < _tau.rawMVAoldDM2017v2) ):
-                    best_tau[mva] = _tau
+                if (self.isMC == 0) and (self.era == "2018" or self.era == "2017"):
+                    if pass_mva_sel and ( (mva not in best_tau.keys()) or (best_tau[mva].idDecayModeOldDMs < _tau.idDecayModeOldDMs) ):
+                        best_tau[mva] = _tau                    
+                else:
+                    if pass_mva_sel and ( (mva not in best_tau.keys()) or (best_tau[mva].rawMVAoldDM2017v2 < _tau.rawMVAoldDM2017v2) ):
+                        best_tau[mva] = _tau
                 if pass_deep_sel and ( (deepTau not in best_tau.keys()) or (best_tau[deepTau].rawDeepTau2017v2p1VSjet < _tau.rawDeepTau2017v2p1VSjet) ):
                     best_tau[deepTau] = _tau
         #

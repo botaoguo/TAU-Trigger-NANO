@@ -17,5 +17,5 @@ __init__*
 crab*/
 out/
 SingleMuon
-filelist/
+filelist*/
 *output/
