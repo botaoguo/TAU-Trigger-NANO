@@ -119,7 +119,7 @@ class tupleProducer(Module):
         self.out.branch("tau_sel", "I")
         self.out.branch("vis_mass", "F")
         
-        self.out.branch("hlt_accept", "l")
+        '''self.out.branch("hlt_accept", "l")
         self.out.branch("hlt_acceptAndMatch", "l")
         
         
@@ -129,12 +129,14 @@ class tupleProducer(Module):
         self.out.branch("hltObj_phi", "F", 1, "nTrigObj")
         self.out.branch("hltObj_hasPathName", "l", 1, "nTrigObj")  # maybe hasPathName show be "g" ? 
         self.out.branch("filter_hltObj", "l", 1, "nTrigObj")
-        self.out.branch("filter_hash", "l", 1, "nTrigObj")
+        self.out.branch("filter_hash", "l", 1, "nTrigObj")'''
         
+        self.out.branch("muon_trig_obj_idx", "I")
+        self.out.branch("tau_trig_obj_idx", "I")
 
         # test for input tree to get HLT result
         self.inTree = inputTree
-        self.trig_sel = self.getTriggerName(self.inTree)
+        #self.trig_sel = self.getTriggerName(self.inTree)
         #TriggerResults = self.getTriggerResult(inputTree)
         #for i in range( len(TriggerResults) ):
         #    print(TriggerResults[i])
@@ -585,6 +587,27 @@ class tupleProducer(Module):
         #    print("leg is None, match==6")
         return leg
 
+    def triggerMatch(self, ref_p4, trig_objs, isMuon): # isMuon : True for muon, False for tau
+        best_matched_obj_index = None
+        #trig_match_obj = TriggerMatchObj()   # an empty class
+        if isMuon:
+            ref_id = 13
+        else:
+            ref_id = 15
+        dR2_bestMatch = 0.5*0.5
+        for _idx, _trig_obj in enumerate(trig_objs):
+                _trig_obj_p4 = R.TLorentzVector()
+                _trig_obj_p4.SetPtEtaPhiM(_trig_obj.pt, _trig_obj.eta, _trig_obj.phi, 0)
+                dR2 = self.deltaR2(ref_p4, _trig_obj_p4)
+                if dR2 >= 0.5*0.5:
+                    continue
+                if _trig_obj.id == ref_id:
+                    if dR2 < dR2_bestMatch:
+                        best_matched_obj_index = _idx
+                        dR2_bestMatch = dR2
+        return best_matched_obj_index
+                    
+
     def analyze(self, event):
         # process event, return True (go to next module) or False (fail, go to next event)
         #electrons = Collection(event, "Electron")
@@ -647,7 +670,7 @@ class tupleProducer(Module):
         # tag trigger match
         
         # TODO
-        # trigger name ???
+        '''# trigger name ???
         TriggerResults = self.getTriggerResult(self.trig_sel, HLT)
         #trig_sel = TriggerResults
         
@@ -661,11 +684,14 @@ class tupleProducer(Module):
         muonTriggerMatch = self.matchTriggerObject(descs, glo_pos_sel, TriggerResults, trigobjs, signalMu_v4, self.trig_sel, deltaR2Thr, True, False)
         # TODO
         if isinstance( getattr(muonTriggerMatch, 'accept', -1), tuple):  # if true, muon trigger match is not none
-            tag_trig_match = True
-            
+            tag_trig_match = True'''
+
+        # add muon trigger match
+        muon_trig_obj_idx =  self.triggerMatch(signalMu_v4, trigobjs, True)
+
         # add direct HLT_IsoMu27 judgement
-        if HLT.IsoMu27 < 0.5:
-            tag_trig_match = False
+        if HLT.IsoMu27 > 0.5 and muon_trig_obj_idx is not None:
+            tag_trig_match = True
 
         if not tag_trig_match:
             return False
@@ -705,12 +731,15 @@ class tupleProducer(Module):
             tau_ref_p4 = tau.p4()
         elif has_gen_tau:
             tau_ref_p4 = gen_tau.visible_p4
-        self.tauTriggerMatch = self.matchTriggerObject(descs, glo_pos_sel, TriggerResults, trigobjs, tau_ref_p4, self.trig_sel, deltaR2Thr, True, True)
+        
+        tau_trig_obj_idx =  self.triggerMatch(tau_ref_p4, trigobjs, False)
+        
+        '''self.tauTriggerMatch = self.matchTriggerObject(descs, glo_pos_sel, TriggerResults, trigobjs, tau_ref_p4, self.trig_sel, deltaR2Thr, True, True)
         #if isinstance( getattr(self.tauTriggerMatch, 'accept', -1), tuple):
         #    print("MATCH TAU!!!")
         accept_tuple = self.tauTriggerMatch.accept
         #print("accept : {}".format( 2**accept_tuple[0] ))
-        #print("acceptAndMatch : {}".format( 2**(self.tauTriggerMatch.acceptAndMatch) ))
+        #print("acceptAndMatch : {}".format( 2**(self.tauTriggerMatch.acceptAndMatch) ))'''
         
         # btag veto
         btagThreshold = 0.9
@@ -828,7 +857,12 @@ class tupleProducer(Module):
             self.out.fillBranch("npu", 0)
         self.out.fillBranch("npv", pv.npvs)
         # fill trigger sth ?
-        self.out.fillBranch("hlt_accept", 2**accept_tuple[0])
+        self.out.fillBranch("muon_trig_obj_idx", muon_trig_obj_idx)
+        if tau_trig_obj_idx is not None:
+            self.out.fillBranch("tau_trig_obj_idx", tau_trig_obj_idx)
+        else:
+            self.out.fillBranch("tau_trig_obj_idx", -999)
+        '''self.out.fillBranch("hlt_accept", 2**accept_tuple[0])
         self.out.fillBranch("hlt_acceptAndMatch", 2**(self.tauTriggerMatch.acceptAndMatch))
         
         
@@ -856,7 +890,7 @@ class tupleProducer(Module):
         self.out.fillBranch("hltObj_phi", hltObj_phi)
         self.out.fillBranch("hltObj_hasPathName", hltObj_hasPathName)
         self.out.fillBranch("filter_hltObj", filter_hltObj)
-        self.out.fillBranch("filter_hash", filter_hash)
+        self.out.fillBranch("filter_hash", filter_hash)'''
         #self.hltevent.Fill()
         
         #print("**********")

@@ -1,24 +1,17 @@
 drop *
 keep muon*
 keep tau*
-keep *vis*
-#keep Tau*
-#keep Jet*
-#keep Electron*
-#keep HLT*
-#keep MET*
-#keep Gen*
+keep vis_mass
 keep TrigObj_*
-keep HLT_*
-keep HLT_IsoMu27*
-keep HLT_IsoMu24*
-keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1
-keep HLT_IsoMu20_eta2p1_LooseCharged*
-keep n*
+keep npv
+keep npu
 keep run
 keep lumi
 keep event
 keep *weight*
-keep hlt*
-keep filter_hltObj
-keep filter_hash
+
+# for 2017
+keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
+keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
+keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1

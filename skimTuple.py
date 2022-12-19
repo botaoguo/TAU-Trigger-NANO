@@ -70,21 +70,21 @@ skimmed_branches = [
   
 # 2017 data
      'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1',
-     'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1',
+#     'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1',
      'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1',
      'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1',
      'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1'
 ]
 
-PassMuTauFilter = "PassMuTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
-                   TrigObj_pt, TrigObj_eta, TrigObj_phi, \
-                   tau_pt, tau_eta, tau_phi)"
-PassDiTauFilter = "PassDiTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
-                   TrigObj_pt, TrigObj_eta, TrigObj_phi, \
-                   tau_pt, tau_eta, tau_phi)"
-PassElTauFilter = "PassElTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
-                   TrigObj_pt, TrigObj_eta, TrigObj_phi, TrigObj_l1pt, TrigObj_l1iso,\
-                   tau_pt, tau_eta, tau_phi)"
+# PassMuTauFilter = "PassMuTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
+#                    TrigObj_pt, TrigObj_eta, TrigObj_phi, \
+#                    tau_pt, tau_eta, tau_phi)"
+# PassDiTauFilter = "PassDiTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
+#                    TrigObj_pt, TrigObj_eta, TrigObj_phi, \
+#                    tau_pt, tau_eta, tau_phi)"
+# PassElTauFilter = "PassElTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
+#                    TrigObj_pt, TrigObj_eta, TrigObj_phi, TrigObj_l1pt, TrigObj_l1iso,\
+#                    tau_pt, tau_eta, tau_phi)"
 
 deltaRThr = 0.5
 #for channel_name, channel_id in channels.items():
@@ -101,7 +101,7 @@ deltaRThr = 0.5
 
 # for 2017Data
 df = df.Define("pass_ditau", "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1 == 1")
-df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[0] > 26 && TrigObj_l1iso[0] > 0")
+df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[muon_trig_obj_idx] > 26 && TrigObj_l1iso[muon_trig_obj_idx] > 0 && tau_trig_obj_idx >= 0 && TrigObj_pt[tau_trig_obj_idx] > 30")
 df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1")
 
 skimmed_branches.append("pass_ditau")
