@@ -19,6 +19,8 @@ nohup python postproc.py --input nanoAOD-2018data-1.root --isMC 0 --era 2018 > n
 ##############
 # skim tuple #
 ##############
+nohup python skimTuple.py --input CRAB_1219_output/DYJetsToTauTauToMuTauh_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/*.root --config ./2017trigger.json --selection DeepTau --output 2017skim_1222/2017skim_1222_DYToTauTau.root --type mc --pu PileupHistogram-goldenJSON-13tev-2017-80000ub.root > nohup-skim.log 2>&1 &
+
 nohup python skimTuple.py --input nanoAOD-2018MC_Skim.root --config ./2018trigger.json --selection DeepTau --output test.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root > nohup-skim.log 2>&1 &
 
 # test for MC
@@ -34,4 +36,13 @@ nohup python createTurnOn.py --input-data nanoAOD-2018data-2_Skim-skimtuple.root
 ###############
 # fit turn on #
 ###############
-nohup python fitTurnOn.py --input TurnOn.root --output fitTrunOn --decay-mode 'all,0,1' > nohup-fitTurnOn.log 2>&1 &
+nohup python fitTurnOn.py --input TurnOn.root --output fitTrunOn > nohup-fitTurnOn.log 2>&1 &
+
+
+
+
+
+###### new test
+nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/DYJetsToTauTauToMuTauh_M-50/nano_99.root --isMC 1 --era 2018 > nohup.log 2>&1 &
+
+nohup python skimTuple.py --input nano_*_Skim.root --selection DeepTau --output nano_skimtuple.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root > nohup-skim.log 2>&1 &

@@ -10,8 +10,25 @@ keep lumi
 keep event
 keep *weight*
 
-# for 2017
+## for 2017
+## keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
+## keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
+## keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+## keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+
+# for 2018
+
+# mutau Run >= 317509 and MC
+keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1
+# mutau Run < 317509
 keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
-keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
-keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
-keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+
+# etau Run >= 317509 and MC
+keep HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1
+# etau Run < 317509
+keep HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1
+
+# ditau Run >=317509 and MC
+keep HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg
+# ditau Run < 317509 
+keep HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg

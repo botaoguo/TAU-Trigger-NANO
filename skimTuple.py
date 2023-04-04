@@ -11,7 +11,7 @@ import ROOT
 
 parser = argparse.ArgumentParser(description='Skim full tuple.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
-parser.add_argument('--config', required=True, type=str, help="config with triggers description")
+# parser.add_argument('--config', required=True, type=str, help="config with triggers description")
 parser.add_argument('--selection', required=True, type=str, help="tau selection")
 parser.add_argument('--output', required=True, type=str, help="output file")
 parser.add_argument('--type', required=True, type=str, help="data or mc")
@@ -40,7 +40,7 @@ if args.type == 'mc':
     data_pu = data_pu_file.Get('pileup')
     df_all = ROOT.RDataFrame('Events', input_vec)
     mc_pu = df_all.Histo1D(ROOT.RDF.TH1DModel(data_pu), 'npu')
-    ROOT.PileUpWeightProvider.Initialize(data_pu, mc_pu.GetPtr())
+    # ROOT.PileUpWeightProvider.Initialize(data_pu, mc_pu.GetPtr())
 
 
 selection_id = ParseEnum(TauSelection, args.selection)
@@ -51,16 +51,21 @@ df = df.Filter('''
                && vis_mass > 40 && vis_mass < 80
                '''.format(selection_id))
 if selection_id == TauSelection.DeepTau:
-    df = df.Filter('( (tau_idDeepTau2017v2p1VSmu << 2) & (1 << {})) != 0'.format(DiscriminatorWP.Tight))
+    df = df.Filter('( (tau_idDeepTau2017v2p1VSmu << 2) & (1 << {})) != 0'.format(DiscriminatorWP.Medium))
 if args.type == 'mc':
     df = df.Filter('tau_charge + muon_charge == 0 && tau_gen_match == 5')
-    df = df.Define('weight', "PileUpWeightProvider::GetDefault().GetWeight(npu) * 1.0")
+    # df = df.Define('weight', "PileUpWeightProvider::GetDefault().GetWeight(npu) * 1.0")
 else:
     df = df.Define('weight', "muon_charge != tau_charge ? 1. : -1.")
 
 skimmed_branches = [
-    'tau_pt', 'tau_eta', 'tau_phi', 'tau_mass', 'tau_charge', 'tau_decayMode', 'weight', 'tau_idDeepTau2017v2p1VSjet',
-# 2018 MC
+    'tau_pt', 'tau_eta', 'tau_phi', 'tau_mass', 'tau_charge', 'tau_decayMode', 'tau_idDeepTau2017v2p1VSjet', #'weight', 
+# 2018 MC it seems that it just has mutau events pass this HLT
+#    'HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1', 
+   'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1',
+#    'HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg',
+
+
 #    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1', 
 #    'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1', 
 #    'HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1', 
@@ -69,11 +74,11 @@ skimmed_branches = [
 #    'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1',
   
 # 2017 data
-     'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1',
+    #  'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1',
 #     'HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1',
-     'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1',
-     'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1',
-     'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1'
+    #  'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1',
+    #  'HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1',
+    #  'HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1'
 ]
 
 # PassMuTauFilter = "PassMuTauFilter(nTrigObj, TrigObj_id, TrigObj_filterBits, \
@@ -97,15 +102,15 @@ deltaRThr = 0.5
 # for 2018MC
 #df = df.Define("pass_ditau", "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1 == 1")
 #df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[0] > 26 && TrigObj_l1iso[0] > 0")
-#df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1 == 1")
+df = df.Define("pass_mutau", "PassMuTauTrig(nTrigObj, TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, tau_pt, tau_eta, tau_phi) && HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1 == 1")
 
 # for 2017Data
-df = df.Define("pass_ditau", "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1 == 1")
-df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[muon_trig_obj_idx] > 26 && TrigObj_l1iso[muon_trig_obj_idx] > 0 && tau_trig_obj_idx >= 0 && TrigObj_pt[tau_trig_obj_idx] > 30")
-df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1")
+# df = df.Define("pass_ditau", "HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1 == 1")
+# df = df.Define("pass_etau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1 && TrigObj_l1pt[muon_trig_obj_idx] > 26 && TrigObj_l1iso[muon_trig_obj_idx] > 0 && tau_trig_obj_idx >= 0 && TrigObj_pt[tau_trig_obj_idx] > 30")
+# df = df.Define("pass_mutau", "HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1 == 1")
 
-skimmed_branches.append("pass_ditau")
-skimmed_branches.append("pass_etau")
+# skimmed_branches.append("pass_ditau")
+# skimmed_branches.append("pass_etau")
 skimmed_branches.append("pass_mutau")
 
 df.Snapshot('Events', args.output, ListToStdVector(skimmed_branches))

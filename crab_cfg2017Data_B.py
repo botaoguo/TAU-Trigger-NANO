@@ -5,7 +5,7 @@ config = Configuration()
 
 config.section_("General")
 config.General.requestName = 'SingleMuon_Run2017UL_B'
-config.General.workArea = "crab2017-1210"
+config.General.workArea = "crab2017-1219"
 config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
@@ -13,7 +13,7 @@ config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'crab_script2017Data.sh'
 config.JobType.maxJobRuntimeMin = 2750
 #config.JobType.numCores = 1
-config.JobType.maxMemoryMB = 4000
+config.JobType.maxMemoryMB = 2500
 # hadd nano will not be needed once nano tools are in cmssw
 config.JobType.inputFiles = ['crab_postproc.py', '../scripts/haddnano.py', 'summaryProducer.py', 'selectionFilter.py', 'tupleProducer.py', 'keep_and_drop.txt', 'output_branch.txt', 'triggerDescriptor.py', 'TriggerConfig.py', '2017trigger.json']
 config.JobType.sendPythonFolder = True
