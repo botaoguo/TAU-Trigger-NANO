@@ -14,6 +14,7 @@ class selectionFilter(Module):
     def __init__(self, isMC, era):
         self.isMC = isMC
         self.era = era
+        self.nanoVer = 9
 
         # cutflow hist
         self.cutflow_hist = R.TH1F('pre_selection','pre_selection',20,0,20)
@@ -123,7 +124,7 @@ class selectionFilter(Module):
                 break
         
         # Special for nanoV10 2018 Data
-        if (self.era == "2018"):
+        if (self.era == "2018" and self.nanoVer == 10):
             for _ele in electrons:
                 _ele_v4 = _ele.p4()
                 if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaIso_WPL > 0.5):

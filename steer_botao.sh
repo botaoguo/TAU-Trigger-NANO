@@ -2,6 +2,15 @@
 nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/SingleMuon_Run2018B/nano_18.root --isMC 0 --era 2018 > nohup.log 2>&1 &
 
 
+##### MC sample 
+/DYJetsToTauTauToMuTauh_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer19UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM
+/SingleMuon/Run2018*12Nov2019_UL2018*/MINIAOD
+
+/SingleMuon/Run2018A-UL2018_MiniAODv1_NanoAODv2-v3/NANOAOD
+/SingleMuon/Run2018B-UL2018_MiniAODv1_NanoAODv2-v2/NANOAOD
+/SingleMuon/Run2018C-UL2018_MiniAODv1_NanoAODv2-v2/NANOAOD
+/SingleMuon/Run2018D-UL2018_MiniAODv1_NanoAODv2-v2/NANOAOD
+
 # MC sample
 /DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL18NanoAODv2-106X_upgrade2018_realistic_v15_L1v1-v1/NANOAODSIM
 
