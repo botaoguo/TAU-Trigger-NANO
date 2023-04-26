@@ -1,3 +1,31 @@
+# echo "Start"
+# sleep 3000
+# python run.py A 0 20 29
+# sleep 5200
+# python run.py A 0 30 35
+# python run.py D 0 0 3
+# sleep 5200
+# python run.py D 0 4 13
+# sleep 5200
+# python run.py D 0 14 23
+# sleep 5200
+# python run.py D 0 24 33
+# sleep 5200
+# python run.py D 0 34 43
+# sleep 5200
+# python run.py D 0 44 53
+# echo "Done"
+# python run.py D 0 54 63
+
+# python run.py D 0 64 73
+
+
+
+
+# python run.py A 0 13 13
+# python run.py A 0 23 23
+# python run.py A 0 6 6
+# python run.py D 0 15 15
 # nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/DYJetsToTauTauToMuTauh_M-50/nano_110.root --isMC 1 --era 2018 > nohup_110.log 2>&1 &
 # nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/DYJetsToTauTauToMuTauh_M-50/nano_111.root --isMC 1 --era 2018 > nohup_111.log 2>&1 &
 # nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/DYJetsToTauTauToMuTauh_M-50/nano_112.root --isMC 1 --era 2018 > nohup_112.log 2>&1 &

@@ -31,10 +31,10 @@ ROOT.TH1.SetDefaultSumw2()
 RootPlotting.ApplyDefaultGlobalStyle()
 
 bin_scans = {
-    2:  [ 0.01 ],
-    5:  [ 0.01, 0.05 ],
-    10: [ 0.05, 0.1 ],
-    20: [ 0.1, 0.2 ],
+    # 2:  [ 0.01 ],
+    # 5:  [ 0.01, 0.05 ],
+    # 10: [ 0.05, 0.1 ],
+    # 20: [ 0.1, 0.2 ],
     #50: [ 0.2, 0.4 ],
     100: [ 0.2 ],
 }
@@ -105,7 +105,14 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
                                                                     turn_on.hist_total.GetPtr(), bin_scan_pairs)
                     else:
                         passed, total = turn_on.hist_passed.GetPtr(), turn_on.hist_total.GetPtr()
-                        FixEfficiencyBins(passed, total)
+                        # # new add by botao
+                        # if (passed.Integral() < 0) or (total.Integral() < 0):
+                        #     continue
+                        # # end add
+                        try:
+                            FixEfficiencyBins(passed, total)
+                        except:
+                            continue
                         turn_on.eff = ROOT.TEfficiency(passed, total)
                         eff = turn_on.eff
                     output_file.WriteTObject(total, name_pattern.format('total'), 'Overwrite')
@@ -142,7 +149,7 @@ hist_models = {
 turnOn_data = [None] * n_inputs
 for input_id in range(n_inputs):
     print("Creating {} histograms...".format(labels[input_id]))
-    turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'tau_idDeepTau2017v2p1VSjet',
+    turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'tau_idDeepTau2017v2p1VSjet', #'tau_idDeepTau2018v2p5VSjet',
                                              working_points, hist_models, labels[input_id], var, output_file)
 
 colors = [ ROOT.kRed, ROOT.kBlack ]
@@ -178,7 +185,10 @@ for channel in channels:
             legend = RootPlotting.CreateLegend(pos=(0.78, 0.28), size=(0.2, 0.15))
             for input_id in range(n_inputs):
                 curve = curves[input_id]
-                curve.Draw('SAME')
+                try:
+                    curve.Draw('SAME')
+                except:
+                    continue
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
                 legend.AddEntry(curve, labels[input_id], 'PLE')
 

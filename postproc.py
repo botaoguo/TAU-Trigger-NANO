@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description='Post Processing.')
     parser.add_argument('--input', required=False, type=str, help="NANO input")
     parser.add_argument('--inputFileList', required=False, type=str, help="NANO input file list")
-    #parser.add_argument('--output', required=True, type=str, help="eventTuple output")
+    parser.add_argument('--output', required=True, type=str, help="eventTuple output")
     parser.add_argument('--isMC', required=True, type=int, help="judge if isMC")
     parser.add_argument('--era', required=True, type=str, help="")
     args = parser.parse_args()
@@ -35,6 +35,7 @@ def main():
         raise RuntimeError("Please check the input!")
 
     isMC = args.isMC
+    output = args.output
     era = args.era
     if args.input:
         files = [ args.input ]
@@ -42,7 +43,7 @@ def main():
         f = open(args.inputFileList, "r")
         files = f.read().splitlines()
     print(files)
-    #exit(0)
+    # exit(0)
     
     #trigFile = './2017trigger.json'
     #hltPaths, tagHltPaths = TriggerConfig.LoadAsVPSet(trigFile)
@@ -84,7 +85,7 @@ def main():
             raise RuntimeError("Please check the right Year!")
         
 
-    p = PostProcessor(".", files, "1", 
+    p = PostProcessor(output, files, "1", 
                       branchsel = "keep_and_drop.txt", 
                       modules= Modules, 
                       provenance=True,

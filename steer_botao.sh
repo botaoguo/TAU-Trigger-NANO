@@ -31,12 +31,14 @@ nohup python skimTuple.py --input nanoAOD-2018data-1_Skim.root --config ./2018tr
 ##################
 # create turn on #
 ##################
-nohup python createTurnOn.py --input-data nanoAOD-2018data-2_Skim-skimtuple.root --input-dy-mc nanoAOD-2018MC-2_Skim-skimtuple.root --output TrunOn > nohup-createTurnOn.log 2>&1 &
+nohup python createTurnOn.py --input-data ztest20230404_data/skim_data_weight.root --input-dy-mc ztest20230404_mc/skim_mc_weight.root --output ztest230426/TrunOn --channels mutau > nohup-createTurnOn.log 2>&1 &
+
+nohup python createTurnOn.py --input-data ztest20230404_data/skim_data_weight.root --input-dy-mc ztest20230404_mc/skim_mc_weight.root --output ztest230426/TrunOn --channels mutau --working-points VVVLoose,VVLoose,VLoose,Loose > nohup-createTurnOn.log 2>&1 &
 
 ###############
 # fit turn on #
 ###############
-nohup python fitTurnOn.py --input TurnOn.root --output fitTrunOn > nohup-fitTurnOn.log 2>&1 &
+nohup python fitTurnOn.py --input ztest230426/TrunOn.root --output ztest230426/fitTrunOn --channels mutau --working-points VVVLoose,VVLoose,VLoose,Loose > nohup-fitTurnOn.log 2>&1 &
 
 
 
