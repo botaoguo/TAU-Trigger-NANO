@@ -174,10 +174,10 @@ for channel in channels:
                 # print("data low: {}".format(eff_data.x_error_low))
                 # print("data high: {}".format(eff_data.x_error_high))
                 # end test
-                plt_data = ax.errorbar(eff_data.x, eff_data.y, xerr=(eff_data.x_error_low, eff_data.x_error_high),
+                plt_data = ax.errorbar(eff_data.x, eff_data.y, xerr=(abs(eff_data.x_error_low), abs(eff_data.x_error_high)),
                                        yerr=(eff_data.y_error_low, eff_data.y_error_high), fmt=data_color+'.',
                                        markersize=5)
-                plt_mc = ax.errorbar(eff_mc.x, eff_mc.y, xerr=(eff_mc.x_error_low, eff_mc.x_error_high),
+                plt_mc = ax.errorbar(eff_mc.x, eff_mc.y, xerr=(abs(eff_mc.x_error_low), abs(eff_mc.x_error_high)),
                                      yerr=(eff_mc.y_error_low, eff_mc.y_error_high), fmt=mc_color+'.', markersize=5)
 
                 plt_data_fitted = ax.plot(x_pred, eff_data_fitted.y_pred, data_color+'--')

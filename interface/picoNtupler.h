@@ -250,3 +250,53 @@ bool PassMuTauTrig(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_
   }
   return false;
 }
+// (trig_bits[it] & 512) != 0 && trig_id[it] == 15 && trig_pt[it] > 27
+
+bool PassElTauTrig(UInt_t ntrig,Vec_t trig_l1pt,Vec_i trig_l1iso,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 512) != 0 && trig_id[it] == 15){ 
+          if(trig_l1pt[it] > 26 && trig_l1iso[it] > 0 && trig_pt[it] > 30)
+            return true;
+      }
+    }
+  }
+  return false;
+}
+// TrigObj_id==15 && (TrigObj_filterBits&256)!=0
+
+bool PassDiTauTrig(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 512) != 0 && (trig_bits[it] & 1024) != 0){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+// (trig_bits[it] & 64) != 0 && trig_id[it] == 15 && ( ((trig_bits[it] & 4) != 0 && (trig_bits[it] & 16) != 0) || (trig_pt[it] > 40 && ( ((trig_bits[it] & 2) != 0 && (trig_bits[it] & 16) != 0) || (trig_bits[it] & 4) != 0 ) ) )
+
+bool PassDiTauTrigMC(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 512) != 0 && (trig_bits[it] & 1024) != 0){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+// (trig_bits[it] & 64) != 0 && trig_id[it] == 15

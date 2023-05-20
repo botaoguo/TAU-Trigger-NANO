@@ -82,7 +82,8 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
         turnOn_data[dm] = {}
         for wp in working_points:
             wp_bit = ParseEnum(DiscriminatorWP, wp)
-            df_wp = df_dm.Filter('({} & (1 << {})) != 0'.format(discr_name, wp_bit))
+            # df_wp = df_dm.Filter('({} & (1 << {})) != 0'.format(discr_name, wp_bit))
+            df_wp = df_dm.Filter('{0} >= {1}'.format(discr_name, wp_bit))
             turnOn_data[dm][wp] = {}
             for channel in channels:
                 turnOn_data[dm][wp][channel] = {}

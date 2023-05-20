@@ -11,10 +11,16 @@ keep event
 keep *weight*
 
 ## for 2017
-## keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
-## keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
-## keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
-## keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+# HLT path
+keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
+keep HLT_DoubleTightChargedIsoPFTau35_Trk_TightID_eta2p1_Reg
+keep HLT_DoubleMediumChargedPFTau40_Trk1_TightID_eta2p1_Reg
+keep HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg
+
+# monitoring path
+keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
+keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
 
 # for 2018
 

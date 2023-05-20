@@ -57,3 +57,22 @@ nohup python fitTurnOn.py --input ztest230426/TrunOn.root --output ztest230426/f
 nohup python postproc.py --input /eos/cms/store/group/phys_tau/TauFW/nanoV10/Run2_2018/DYJetsToTauTauToMuTauh_M-50/nano_99.root --isMC 1 --era 2018 > nohup.log 2>&1 &
 
 nohup python skimTuple.py --input nano_*_Skim.root --selection DeepTau --output nano_skimtuple.root --type mc --pu PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root > nohup-skim.log 2>&1 &
+
+nohup python skimTuple.py --input ztest_0514_data/SingleMuon_Run2018A/nano_*_Skim.root --selection DeepTau --output ztest_0514_003/nano_skimtuple.root --type data > nohup-skim.log 2>&1 &
+
+nohup python createTurnOn.py --input-data ztest_0514_003/data_skimtuple.root --input-dy-mc ztest_0514_003/mc_skimtuple.root --output ztest_0514_003/TrunOn --channels mutau > nohup-createTurnOn.log 2>&1 &
+
+nohup python fitTurnOn.py --input ztest_0514_003/TrunOn.root --output ztest_0514_003/fitTrunOn --channels mutau > nohup-fitTurnOn.log 2>&1 &
+
+
+
+nohup python createTurnOn.py --input-data ztest_0516_3channel/data_skimtuple.root --input-dy-mc ztest_0516_3channel/mc_skimtuple.root --output ztest_0516_3channel/TrunOn > nohup-createTurnOn.log 2>&1 &
+
+
+nohup python createTurnOn.py --input-data ztest_0516_3channel_002/data_skimtuple.root --input-dy-mc ztest_0516_3channel_002/mc_skimtuple.root --output ztest_0516_3channel_002/TrunOn > nohup-createTurnOn.log 2>&1 &
+
+nohup python fitTurnOn.py --input ztest_0516_3channel_002/TrunOn.root --output ztest_0516_3channel_002/fitTrunOn > nohup-fitTurnOn.log 2>&1 &
+
+
+# plot comparision
+nohup python TauTriggerTools/TauTagAndProbe/python/plot_ratio.py --input /eos/user/b/boguo/botao/CRAB_/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/ztest_0516_3channel_002/fitTrunOn.root,/eos/user/b/boguo/botao/tau/CMSSW_10_6_17_patch1/src/TauAnalysisTools/TauTriggerSFs/data/2018UL_tauTriggerEff_DeepTau2017v2p1.root --output /eos/user/b/boguo/botao/CRAB_/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/ztest_0516_3channel_002/comparision/plot_2018 > /eos/user/b/boguo/botao/CRAB_/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/ztest_0516_3channel_002/comparision/nohup_plot_2018.log 2>&1 &
