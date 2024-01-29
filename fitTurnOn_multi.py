@@ -25,7 +25,7 @@ from RootObjects import Histogram, Graph
 parser = argparse.ArgumentParser(description='Fit turn-on curves.')
 parser.add_argument('--input', required=True, type=str, help="ROOT file with turn-on curves")
 parser.add_argument('--output', required=True, type=str, help="output file prefix")
-parser.add_argument('--channels', required=False, type=str, default='etau,mutau,ditau', help="channels to process")
+parser.add_argument('--channels', required=False, type=str, default='etau,mutau,ditau,ditaujet', help="channels to process")
 parser.add_argument('--decay-modes', required=False, type=str, default='all,0,1,10,11,1011', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
                     default='VVVLoose,VVLoose,VLoose,Loose,Medium,Tight,VTight,VVTight',
@@ -112,7 +112,7 @@ class FitResults:
 channels = args.channels.split(',')
 decay_modes = args.decay_modes.split(',')
 working_points = args.working_points.split(',')
-ch_validity_thrs = { 'etau': 35, 'mutau': 32, 'ditau': 40 }
+ch_validity_thrs = { 'etau': 35, 'mutau': 32, 'ditau': 40, 'ditaujet': 40, }
 
 file = ROOT.TFile(args.input, 'READ')
 output_file = ROOT.TFile('{}.root'.format(args.output), 'RECREATE', '', ROOT.RCompressionSetting.EDefaults.kUseSmallest)

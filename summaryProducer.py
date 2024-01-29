@@ -105,6 +105,8 @@ class summaryProducer(Module):
 summary2016MC = lambda : summaryProducer(True,"2016")
 summary2017MC = lambda : summaryProducer(True,"2017")
 summary2018MC = lambda : summaryProducer(True,"2018")
+summary2022MC = lambda : summaryProducer(True,"2022")
 summary2016data = lambda : summaryProducer(False,"2016")
 summary2017data = lambda : summaryProducer(False,"2017")
 summary2018data = lambda : summaryProducer(False,"2018")
+summary2022data = lambda : summaryProducer(False,"2022")

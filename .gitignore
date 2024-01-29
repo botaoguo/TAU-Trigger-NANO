@@ -20,3 +20,11 @@ SingleMuon
 filelist*/
 *output/
 zcrab*/
+
+MiniAOD/
+2022_2023WinterDYTauTau/
+local_run.py
+plot_ratio.py
+runsf.sh
+steer_botao_farm.sh
+Cert_Collisions2022_355100_362760_GoldenJSON.txt

@@ -13,7 +13,8 @@ parser = argparse.ArgumentParser(description='Create turn on curves.')
 parser.add_argument('--input-data', required=True, type=str, help="skimmed data input")
 parser.add_argument('--input-dy-mc', required=True, type=str, help="skimmed DY MC input")
 parser.add_argument('--output', required=True, type=str, help="output file prefix")
-parser.add_argument('--channels', required=False, type=str, default='etau,mutau,ditau', help="channels to process")
+# parser.add_argument('--channels', required=False, type=str, default='etau,mutau,ditau,ditaujet', help="channels to process")
+parser.add_argument('--channels', required=False, type=str, default='ditau,ditau_withptiso_nobitcut,ditau_withptiso_bit1,ditau_withptiso_bit1_bit17,ditau_withptiso_bit1_bit17_0bit18', help="channels to process")
 parser.add_argument('--decay-modes', required=False, type=str, default='all,0,1,10,11,1011', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
                     default='VVVLoose,VVLoose,VLoose,Loose,Medium,Tight,VTight,VVTight',

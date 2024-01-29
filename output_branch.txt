@@ -9,6 +9,19 @@ keep run
 keep lumi
 keep event
 keep *weight*
+keep HLT_IsoMu24
+keep HLT_IsoMu27
+
+## for 2016
+# monitoring path
+# etau and mutau
+keep HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1
+keep HLT_IsoMu19_eta2p1_LooseIsoPFTau20
+# ditau
+# for BCDEF (PreVFP)    Combined for H, rest for BCDEFG
+keep HLT_IsoMu19_eta2p1_MediumCombinedIsoPFTau32_Trk1_eta2p1_Reg
+# for FGH (PostVFP)
+keep HLT_IsoMu19_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg
 
 ## for 2017
 # HLT path
@@ -18,9 +31,13 @@ keep HLT_DoubleMediumChargedPFTau40_Trk1_TightID_eta2p1_Reg
 keep HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg
 
 # monitoring path
-keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
+# etau and mutau
+keep HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1
+# ditau
 keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
 keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
+keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
+
 
 # for 2018
 
@@ -48,3 +65,39 @@ keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
 keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1
 keep HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1
 keep HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1
+
+# 2022 trigger path
+# ditau
+keep HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1
+# etau
+keep HLT_Ele24_eta2p1_WPTight_Gsf_LooseDeepTauPFTauHPS30_eta2p1_CrossL1
+# mutau
+keep HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1
+# single tau
+keep HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1
+# VBF ditau
+keep HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1
+keep HLT_DoublePFJets40_Mass500_MediumDeepTauPFTauHPS45_L2NN_MediumDeepTauPFTauHPS20_eta2p1
+# ditau jet
+keep HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60
+keep HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet75
+
+# 2022 monitoring path
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Trigger_Table_for_2022
+# monitoring ditau
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1
+
+# monitoring ditau+jet
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60_CrossL1
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet75_CrossL1
+
+# monitoring VBF+ditau
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS20_eta2p1_SingleL1
+keep HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS45_L2NN_eta2p1_CrossL1
+
+# monitoring single tau
+keep HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1
+
+# monitoring etau and mutau
+keep HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1

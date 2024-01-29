@@ -14,7 +14,7 @@ class selectionFilter(Module):
     def __init__(self, isMC, era):
         self.isMC = isMC
         self.era = era
-        self.nanoVer = 9
+        self.nanoVer = 11
 
         # cutflow hist
         self.cutflow_hist = R.TH1F('pre_selection','pre_selection',20,0,20)
@@ -68,7 +68,7 @@ class selectionFilter(Module):
             _mu_v4 = _muon.p4()
             if (_muon.mediumId) and (_mu_v4.Pt() > 24) and (abs(_mu_v4.Eta()) < 2.1) :
                 muon_sel.append( (_mu_v4, _muon, _m) )
-        if (self.era == "2018"):
+        if (self.nanoVer == 10 or self.nanoVer == 11):
             muon_sel.sort(key=lambda x:(x[1].pfRelIso04_all, x[0].Pt()) ,reverse=True)
         else:
             muon_sel.sort(key=lambda x:(x[1].miniIsoId, x[0].Pt()) ,reverse=True)
@@ -124,10 +124,16 @@ class selectionFilter(Module):
                 break
         
         # Special for nanoV10 2018 Data
-        if (self.era == "2018" and self.nanoVer == 10):
+        if self.nanoVer == 10:
             for _ele in electrons:
                 _ele_v4 = _ele.p4()
                 if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaIso_WPL > 0.5):
+                    has_ele = True
+                    break
+        elif (self.nanoVer == 11): # nano v11 mvaIso_Fall17V2_WPL,  in nano v13 Electron_mvaIso
+            for _ele in electrons:
+                _ele_v4 = _ele.p4()
+                if (_ele_v4.Pt() > 10) and (abs(_ele_v4.Eta()) < 2.5) and (_ele.mvaIso > 0.5):
                     has_ele = True
                     break
         else:
@@ -192,7 +198,9 @@ class selectionFilter(Module):
 selection2016MC = lambda : selectionFilter(True,"2016")
 selection2017MC = lambda : selectionFilter(True,"2017")
 selection2018MC = lambda : selectionFilter(True,"2018")
+selection2022MC = lambda : selectionFilter(True,"2022")
 selection2016data = lambda : selectionFilter(False,"2016")
 selection2017data = lambda : selectionFilter(False,"2017")
 selection2018data = lambda : selectionFilter(False,"2018")
+selection2022data = lambda : selectionFilter(False,"2022")
 

@@ -9,6 +9,7 @@ import sys
 import ROOT
 import argparse
 
+import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Config as cms
 
 #sys.path.append('Common')
@@ -68,31 +69,65 @@ def main():
     
     #Modules = [tuple2017MC()]
     if isMC:
+        jsoninput = None,
         if era == '2016':
             Modules = [summary2016MC(), selection2016MC(), tuple2016MC()]
         elif era == '2017':
             Modules = [summary2017MC(), selection2017MC(), tuple2017MC()]
         elif era == '2018':
             Modules = [summary2018MC(), selection2018MC(), tuple2018MC()]
+        elif era == '2022':
+            Modules = [summary2022MC(), selection2022MC(), tuple2022MC()]
         else:
             raise RuntimeError("Please check the right Year!")
+        p = PostProcessor(output, files, "1", 
+                        branchsel = "keep_and_drop.txt", 
+                        modules= Modules, 
+                        provenance=True,
+                        outputbranchsel = "output_branch.txt"
+        )
+
     else:
         if era == '2016':
             Modules = [summary2016data(), selection2016data(), tuple2016data()]
+            lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt").getCMSSWString().split(',') )
         elif era == '2017':
             Modules = [summary2017data(), selection2017data(), tuple2017data()]
+            lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt").getCMSSWString().split(',') )
         elif era == '2018':
             Modules = [summary2018data(), selection2018data(), tuple2018data()]
+            lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt").getCMSSWString().split(',') )
+        elif era == '2022':
+            Modules = [summary2022data(), selection2022data(), tuple2022data()]
+            lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="./Cert_Collisions2022_355100_362760_GoldenJSON.txt").getCMSSWString().split(',') )
         else:
             raise RuntimeError("Please check the right Year!")
+    
+        runsAndLumis_special = {}
+        for l in lumisToProcess:
+            if "-" in l:
+                start, stop = l.split("-")
+                rstart, lstart = start.split(":")
+                rstop, lstop = stop.split(":")
+            else:
+                rstart, lstart = l.split(":")
+                rstop, lstop = l.split(":")
+            if rstart != rstop:
+                raise Exception(
+                    "Cannot convert '%s' to runs and lumis json format" % l)
+            if rstart not in runsAndLumis_special:
+                runsAndLumis_special[rstart] = []
+            runsAndLumis_special[rstart].append([int(lstart), int(lstop)])
         
-
-    p = PostProcessor(output, files, "1", 
-                      branchsel = "keep_and_drop.txt", 
-                      modules= Modules, 
-                      provenance=True,
-                      outputbranchsel = "output_branch.txt"
-    )
+        jsoninput = runsAndLumis_special
+        
+        p = PostProcessor(output, files, "1", 
+                        branchsel = "keep_and_drop.txt", 
+                        modules= Modules, 
+                        jsonInput=jsoninput,
+                        provenance=True,
+                        outputbranchsel = "output_branch.txt"
+        )
     p.run()
     print("Done !")
 

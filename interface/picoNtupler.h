@@ -300,3 +300,396 @@ bool PassDiTauTrigMC(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Ve
   return false;
 }
 // (trig_bits[it] & 64) != 0 && trig_id[it] == 15
+
+/// 2016 
+bool PassMuTauTrig2016(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 32) != 0 && trig_id[it] == 15 && (trig_bits[it] & 1) != 0){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+bool PassElTauTrig2016(UInt_t ntrig,Vec_t trig_l1pt,Vec_i trig_l1iso,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi,int run){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 32) != 0 && trig_id[it] == 15 && (trig_bits[it] & 1) != 0){ 
+          // if(trig_l1pt[it] > 26 && trig_l1iso[it] > 0 && trig_pt[it] > 30)
+          if (run<276215) {
+            return true;
+          } else if (run >= 276215 && run < 278270) {
+            return true;
+          } else if (run >= 278270) {
+            if(trig_l1pt[it] > 26 && trig_id[it] == 15 && trig_pt[it] > 30) {
+              return true;
+            }
+          }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2016(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 2) != 0 && trig_id[it] == 15){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
+// nano v12
+// 0 => LooseChargedIso, 1 => MediumChargedIso, 2 => TightChargedIso, 3 => DeepTau, 4 => TightID OOSC photons, 5 => HPS, 
+// 6 => charged iso di-tau, 7 => deeptau di-tau, 8 => e-tau, 9 => mu-tau, 10 => single-tau/tau+MET, 11 => run 2 VBF+ditau, 
+// 12 => run 3 VBF+ditau, 13 => run 3 double PF jets + ditau, 14 => di-tau + PFJet, 15 => Displaced Tau, 16 => Monitoring, 
+// 17 => regional paths, 18 => L1 seeded paths, 19 => 1 prong tau paths for Tau
+
+// 7 -> deeptau di-tau, 128
+// 8 -> e-tau, 256
+// 9 -> mu-tau, 512
+// 10 -> single-tau, 1024
+// 12 -> run 3 VBF+ditau, 4096
+// 14 -> di-tau + PFJet, 16384
+
+// new sample
+// 0 => Loose, 1 => Medium, 2 => Tight, 3 => DeepTau no spec WP, 4 => ChargedIso, 5 => HPS, 
+// 6 => e-tau inside filter, 7 => mu-tau inside filter, 8 => single-tau inside filter, 9 => VBF matching, 10 => di-tau, 11 => e-tau, 12 => mu-tau, 
+// 13 => di-tau + PFJet, 14 => e-tau displaced, 15 => mu-tau displaced, 16 => di-tau displaced, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, 
+// 19 => 'Monitoring di-tau + PFJet, 20 => 'Monitoring muTau displaced, 21 => OneProng, 22 => DiJetCorr, 23 => OverlapFilter, 24 => Dxy, 25 => MatchL1HLT, 
+// 26 => MatchL1HLT, 27 => VBF + DoubleTau Monitoring, 28 => For matching to monitoring trigger for 20 GeV tau leg of VBF triggers, 29 => single PF-tau inside filter for Tau
+
+// 10, 11, 12 -> ditau 1024,  etau and mutau 4096
+// 6, 7, 8 -> 64, 128, 256
+// 13 ditau PFJet 8192, 19 'Monitoring di-tau + PFJet,
+// 28 For matching to monitoring trigger for 20 GeV tau leg of VBF triggers ? 268435456
+// 29 -> single PF-tau inside filter for Tau 536870912
+
+bool PassMuTauTrig2022(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & (1<<7)) != 0 && (trig_bits[it] & (1<<26)) != 0 && trig_id[it] == 15){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+bool PassEleTauTrig2022(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & (1<<7)) != 0 && (trig_bits[it] & (1<<26)) != 0 && trig_id[it] == 15 && trig_pt[it] > 30 && trig_l1iso[it] > 0 && trig_l1pt[it] > 26){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+/// checking about ditau path
+bool PassDiTauTrig2022_withptiso_nobitcut(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if(trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_withptiso_bit1(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_withptiso_bit1_bit17(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_withptiso_bit1_bit17_0bit18(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool PassDiTauTrig2022_nobit17(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17_0bit18_TrigPt35(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17_0bit18_TrigPt35_l1Iso(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17_0bit18_TrigPt35_l1Iso_ORl1pt70(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0) || trig_l1pt[it] > 70 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17_0bit18_TrigPt35_l1Iso_ANDl1pt32(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15 && trig_pt[it] > 35){ 
+        if ( (trig_l1iso[it] > 0) && trig_l1pt[it] > 32 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && trig_id[it] == 15){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && trig_id[it] == 15){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit17(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<17)) != 0 && trig_id[it] == 15){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_0bit18(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauTrig2022_bit1_bit17_0bit18(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15){ 
+        // if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) || trig_l1pt[it] > 70 ) {
+          return true;
+        // }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTauJetTrig2022(UInt_t ntrig,Vec_t trig_l1pt, Vec_i trig_l1iso, Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, bit1 && bit17 && !bit18
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<17)) != 0 && (trig_bits[it] & (1<<18)) == 0 && trig_id[it] == 15){ 
+        if ( (trig_l1iso[it] > 0 && trig_l1pt[it] > 32) )  
+          return true;
+      }
+    }
+  }
+  return false;
+}
+bool PassSingleTauTrig2022(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 536870912) != 0 && trig_id[it] == 15){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
+bool PassVBFDiTauTrig2022(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_pt,Vec_t trig_eta,Vec_t trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & 268435456) != 0 && trig_id[it] == 15){ 
+          return true;
+      }
+    }
+  }
+  return false;
+}
