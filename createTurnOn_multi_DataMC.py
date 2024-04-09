@@ -43,6 +43,21 @@ bin_scan_pairs = []
 for max_bin_delta_pt, max_rel_err_vec in bin_scans.items():
     for max_rel_err in max_rel_err_vec:
         bin_scan_pairs.append([max_bin_delta_pt, max_rel_err])
+# debug for DM 11
+bin_scans_mc = {
+    # 2:  [ 0.01 ],
+    # 5:  [ 0.01, 0.05 ],
+    # 10: [ 0.05, 0.1 ],
+    # 20: [ 0.1, 0.2 ],
+    #50: [ 0.2, 0.4 ],
+    100: [ 0.08 ],
+}
+bin_scan_pairs_mc = []
+
+# mc 100: [0.08,0.1]
+for max_bin_delta_pt_mc, max_rel_err_vec_mc in bin_scans_mc.items():
+    for max_rel_err_mc in max_rel_err_vec_mc:
+        bin_scan_pairs_mc.append([max_bin_delta_pt_mc, max_rel_err_mc])
 
 def CreateBins(max_pt, for_fitting):
     if for_fitting:
@@ -67,62 +82,92 @@ class TurnOnData:
         self.hist_passed = None
         self.eff = None
 
-def CreateHistograms(input_file, channels, decay_modes, discr_name, working_points, hist_models, label, var,
+def CreateHistograms(input_file, input_file_mc, channels, decay_modes, discr_name, working_points, hist_models, label, label_mc, var,
                      output_file):
     df = ROOT.RDataFrame('Events', input_file)
+    df_mc = ROOT.RDataFrame('Events', input_file_mc)
     turnOn_data = {}
+    turnOn_mc = {}
     dm_labels = {}
 
     for dm in decay_modes:
         if dm == 'all':
             dm_labels[dm] = ''
             df_dm = df
+            df_dm_mc = df_mc
         elif dm == '1011':
             dm_labels[dm] = '_dm{}'.format(dm)
             df_dm = df.Filter('tau_decayMode == 10 | tau_decayMode == 11')
+            df_dm_mc = df_mc.Filter('tau_decayMode == 10 | tau_decayMode == 11')
         else:
             dm_labels[dm] = '_dm{}'.format(dm)
             df_dm = df.Filter('tau_decayMode == {}'.format(dm))
+            df_dm_mc = df_mc.Filter('tau_decayMode == {}'.format(dm))
         turnOn_data[dm] = {}
+        turnOn_mc[dm] = {}
         for wp in working_points:
             wp_bit = ParseEnum(DiscriminatorWP, wp)
             # df_wp = df_dm.Filter('({} & (1 << {})) != 0'.format(discr_name, wp_bit))
             df_wp = df_dm.Filter('{0} >= {1}'.format(discr_name, wp_bit))
+            df_wp_mc = df_dm_mc.Filter('{0} >= {1}'.format(discr_name, wp_bit))
             turnOn_data[dm][wp] = {}
+            turnOn_mc[dm][wp] = {}
             for channel in channels:
                 turnOn_data[dm][wp][channel] = {}
+                turnOn_mc[dm][wp][channel] = {}
                 df_ch = df_wp.Filter('pass_{} > 0.5'.format(channel))
+                df_ch_mc = df_wp_mc.Filter('pass_{} > 0.5'.format(channel))
                 for model_name, hist_model in hist_models.items():
-                    turn_on = TurnOnData()
+                    turn_on = TurnOnData() # class TurnOnData
+                    turn_on_mc = TurnOnData() # class TurnOnData
+                    
                     turn_on.hist_total = df_wp.Histo1D(hist_model, var, 'weight')
+                    turn_on_mc.hist_total = df_wp_mc.Histo1D(hist_model, var, 'weight')
+                    
                     turn_on.hist_passed = df_ch.Histo1D(hist_model, var, 'weight')
+                    turn_on_mc.hist_passed = df_ch_mc.Histo1D(hist_model, var, 'weight')
+                    
                     turnOn_data[dm][wp][channel][model_name] = turn_on
+                    turnOn_mc[dm][wp][channel][model_name] = turn_on_mc
 
     for dm in decay_modes:
         for wp in working_points:
             for channel in channels:
                 for model_name, hist_model in hist_models.items():
+                    
                     turn_on = turnOn_data[dm][wp][channel][model_name]
+                    turn_on_mc = turnOn_mc[dm][wp][channel][model_name]
+                    
                     name_pattern = '{}_{}_{}{}_{}_{{}}'.format(label, channel, wp, dm_labels[dm], model_name)
+                    name_pattern_mc = '{}_{}_{}{}_{}_{{}}'.format(label_mc, channel, wp, dm_labels[dm], model_name)
                     turn_on.name_pattern = name_pattern
+                    turn_on.name_pattern_mc = name_pattern_mc
                     if 'fit' in model_name:
-                        passed, total, eff = AutoRebinAndEfficiency(turn_on.hist_passed.GetPtr(),
-                                                                    turn_on.hist_total.GetPtr(), bin_scan_pairs)
+                        passed, total, eff, passed_mc, total_mc, eff_mc = AutoRebinAndEfficiencyforDataMCboth(turn_on.hist_passed.GetPtr(),
+                                                                                                      turn_on.hist_total.GetPtr(), bin_scan_pairs, turn_on_mc.hist_passed.GetPtr(), turn_on_mc.hist_total.GetPtr())
                     else:
                         passed, total = turn_on.hist_passed.GetPtr(), turn_on.hist_total.GetPtr()
+                        passed_mc, total_mc = turn_on_mc.hist_passed.GetPtr(), turn_on_mc.hist_total.GetPtr()
                         # # new add by botao
                         # if (passed.Integral() < 0) or (total.Integral() < 0):
                         #     continue
                         # # end add
                         try:
                             FixEfficiencyBins(passed, total)
+                            FixEfficiencyBins(passed_mc, total_mc)
                         except:
                             continue
                         turn_on.eff = ROOT.TEfficiency(passed, total)
+                        turn_on_mc.eff = ROOT.TEfficiency(passed_mc, total_mc)
                         eff = turn_on.eff
+                        eff_mc = turn_on_mc.eff
                     output_file.WriteTObject(total, name_pattern.format('total'), 'Overwrite')
                     output_file.WriteTObject(passed, name_pattern.format('passed'), 'Overwrite')
                     output_file.WriteTObject(eff, name_pattern.format('eff'), 'Overwrite')
+                    
+                    output_file.WriteTObject(total_mc, name_pattern_mc.format('total'), 'Overwrite')
+                    output_file.WriteTObject(passed_mc, name_pattern_mc.format('passed'), 'Overwrite')
+                    output_file.WriteTObject(eff_mc, name_pattern_mc.format('eff'), 'Overwrite')
                     # print(name_pattern)
                     # print('hist_total {}'.format(turn_on.hist_total.GetPtr().GetNbinsX()))
                     # for n in range(turn_on.hist_total.GetPtr().GetNbinsX() + 1):
@@ -134,7 +179,7 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
                     #    turn_on.eff = ROOT.TEfficiency(turn_on.hist_passed.GetPtr(), turn_on.hist_total.GetPtr())
                     #    output_file.WriteTObject(turn_on.eff, name_pattern.format('passed'), 'Overwrite')
 
-    return turnOn_data
+    return turnOn_data,turnOn_mc
 
 output_file = ROOT.TFile(args.output + '.root', 'RECREATE')
 input_files = [ args.input_data, args.input_dy_mc ]
@@ -152,10 +197,14 @@ hist_models = {
     'fit': ROOT.RDF.TH1DModel(var, var, len(bins_fit) - 1, array('d', bins_fit))
 }
 turnOn_data = [None] * n_inputs
-for input_id in range(n_inputs):
-    print("Creating {} histograms...".format(labels[input_id]))
-    turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'tau_idDeepTau2018v2p5VSjet', # tau_idDeepTau2017v2p1VSjet,
-                                             working_points, hist_models, labels[input_id], var, output_file)
+# input id = 0 -> data
+# input id = 1 -> mc
+# for input_id in range(n_inputs):
+#     print("Creating {} histograms...".format(labels[input_id]))
+#     turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'tau_idDeepTau2018v2p5VSjet', # tau_idDeepTau2017v2p1VSjet,
+#                                              working_points, hist_models, labels[input_id], var, output_file)
+turnOn_data[0], turnOn_data[1] = CreateHistograms(input_files[0], input_files[1], channels, decay_modes, 'tau_idDeepTau2018v2p5VSjet',
+                                             working_points, hist_models, labels[0], labels[1], var, output_file)
 
 colors = [ ROOT.kRed, ROOT.kBlack ]
 canvas = RootPlotting.CreateCanvas()

@@ -210,3 +210,91 @@ def AutoRebinAndEfficiency(hist_passed, hist_total, bin_scan_pairs):
             if bin_created: break
         n += k + 1
     return tuple(graphs.ToRootGraphs(n_output_points))
+
+def AutoRebinAndEfficiencyforDataMCboth(hist_passed, hist_total, bin_scan_pairs, hist_passed_mc, hist_total_mc):
+    passed, total = 0, 1
+    hist = [ hist_passed, hist_total ]
+    for n in range(len(hist)):
+        if type(hist[n]) != Histogram:
+            hist[n] = Histogram(hist[n])
+    # for mc
+    hist_mc = [ hist_passed_mc, hist_total_mc ]
+    for n in range(len(hist_mc)):
+        if type(hist_mc[n]) != Histogram:
+            hist_mc[n] = Histogram(hist_mc[n])
+    # end mc
+
+    n_bins = hist_total.GetNbinsX()
+    graphs = MultiGraph(len(hist) + 1, n_bins)
+    # for mc
+    graphs_mc = MultiGraph(len(hist_mc) + 1, n_bins)
+    # end mc
+
+    n = 0
+    n_output_points = 0
+    abs_min_total_yield = bin_scan_pairs[-1][-1]
+    while n < n_bins:
+        if np.sum(hist[total].values[n:]) < abs_min_total_yield:
+            break
+        for max_bin_size, max_rel_error in bin_scan_pairs:
+            bin_created=False
+            v_counter = np.zeros(len(hist))
+            w2_counter = np.zeros(len(hist))
+            # for mc
+            v_counter_mc = np.zeros(len(hist_mc))
+            w2_counter_mc = np.zeros(len(hist_mc))
+            # end mc
+            k = 0
+            while k < max_bin_size and n + k < n_bins:
+                for sel_id in range(len(hist)):
+                    v_counter[sel_id] += hist[sel_id].values[n+k]
+                    w2_counter[sel_id] += hist[sel_id].errors[n+k] ** 2
+                    # for mc
+                    v_counter_mc[sel_id] += hist_mc[sel_id].values[n+k]
+                    w2_counter_mc[sel_id] += hist_mc[sel_id].errors[n+k] ** 2
+                    # end mc
+                if v_counter[total] > 0 and math.sqrt(w2_counter[total]) / v_counter[total] < max_rel_error \
+                   and v_counter[passed] > 0 and v_counter[passed] < v_counter[total]:
+                   #if v_counter[total] >= min_yield and v_counter[passed] > 0 and v_counter[passed] < v_counter[total]:
+                    
+                    eff = v_counter[passed] / v_counter[total]
+                    x_avg = np.average(hist[total].edges[n:n+k+1], weights=hist[total].values[n:n+k+1])
+                    graphs.x[n_output_points] = x_avg
+                    graphs.x_error_low[n_output_points] = x_avg - hist[total].edges[n]
+                    graphs.x_error_high[n_output_points] = hist[total].edges[n+k+1] - x_avg
+                    for sel_id in range(len(hist)):
+                        graphs.y[sel_id, n_output_points] = v_counter[sel_id]
+                        graphs.y_error_low[sel_id, n_output_points] = math.sqrt(w2_counter[sel_id])
+                        graphs.y_error_high[sel_id, n_output_points] = math.sqrt(w2_counter[sel_id])
+                    graphs.y[len(hist), n_output_points] = eff
+                    eff_down, eff_up = weighted_eff_confint_freqMC(v_counter[passed],
+                                                                   v_counter[total] - v_counter[passed],
+                                                                   math.sqrt(w2_counter[passed]),
+                                                                   math.sqrt(w2_counter[total] - w2_counter[passed]))
+                    graphs.y_error_low[len(hist), n_output_points] = eff - eff_down
+                    graphs.y_error_high[len(hist), n_output_points] = eff_up - eff
+                    # for mc
+                    eff_mc = v_counter_mc[passed] / v_counter_mc[total]
+                    x_avg_mc = np.average(hist_mc[total].edges[n:n+k+1], weights=hist_mc[total].values[n:n+k+1])
+                    graphs_mc.x[n_output_points] = x_avg_mc
+                    graphs_mc.x_error_low[n_output_points] = x_avg_mc - hist_mc[total].edges[n]
+                    graphs_mc.x_error_high[n_output_points] = hist_mc[total].edges[n+k+1] - x_avg_mc
+                    for sel_id in range(len(hist)):
+                        graphs_mc.y[sel_id, n_output_points] = v_counter_mc[sel_id]
+                        graphs_mc.y_error_low[sel_id, n_output_points] = math.sqrt(w2_counter_mc[sel_id])
+                        graphs_mc.y_error_high[sel_id, n_output_points] = math.sqrt(w2_counter_mc[sel_id])
+                    graphs_mc.y[len(hist), n_output_points] = eff_mc
+                    eff_down_mc, eff_up_mc = weighted_eff_confint_freqMC(v_counter_mc[passed],
+                                                                   v_counter_mc[total] - v_counter_mc[passed],
+                                                                   math.sqrt(w2_counter_mc[passed]),
+                                                                   math.sqrt(w2_counter_mc[total] - w2_counter_mc[passed]))
+                    graphs_mc.y_error_low[len(hist), n_output_points] = eff_mc - eff_down_mc
+                    graphs_mc.y_error_high[len(hist), n_output_points] = eff_up_mc - eff_mc
+                    # end mc
+                    n_output_points += 1
+                    bin_created = True
+                    break
+                k += 1
+            if bin_created: break
+        n += k + 1
+    return tuple(graphs.ToRootGraphs(n_output_points)+graphs_mc.ToRootGraphs(n_output_points))

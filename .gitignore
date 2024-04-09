@@ -21,6 +21,8 @@ filelist*/
 *output/
 zcrab*/
 
+skimTuple_2022preEE_check.py
+2023/
 MiniAOD/
 2022_2023WinterDYTauTau/
 local_run.py

@@ -78,6 +78,8 @@ def main():
             Modules = [summary2018MC(), selection2018MC(), tuple2018MC()]
         elif era == '2022':
             Modules = [summary2022MC(), selection2022MC(), tuple2022MC()]
+        elif era == '2023':
+            Modules = [summary2023MC(), selection2023MC(), tuple2023MC()]
         else:
             raise RuntimeError("Please check the right Year!")
         p = PostProcessor(output, files, "1", 
@@ -100,6 +102,9 @@ def main():
         elif era == '2022':
             Modules = [summary2022data(), selection2022data(), tuple2022data()]
             lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="./Cert_Collisions2022_355100_362760_GoldenJSON.txt").getCMSSWString().split(',') )
+        elif era == '2023':
+            Modules = [summary2023data(), selection2023data(), tuple2023data()]
+            lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(filename="./Cert_Collisions2023_366442_370790_GoldenJSON.txt").getCMSSWString().split(',') )
         else:
             raise RuntimeError("Please check the right Year!")
     
