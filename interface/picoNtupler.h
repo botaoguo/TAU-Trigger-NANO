@@ -13,6 +13,53 @@ using RNode = ROOT::RDF::RNode;
 using Vec_t = const ROOT::RVec<float>&;
 using Vec_i = const ROOT::RVec<int>&;
 
+using cRVecF = const ROOT::RVecF &;
+using cRVecI = const ROOT::RVecI &;
+using cRVecC = const ROOT::RVecC &;
+using cRVecU = const ROOT::RVecU &;
+
+
+bool SelectTau(cRVecF tau_pt, cRVecF tau_eta, cRVecC tau_idDeepTau2018v2p5VSe, cRVecC tau_idDeepTau2018v2p5VSmu, cRVecC tau_idDeepTau2018v2p5VSjet)
+{
+  int tau_num = 0;
+  for(auto i =0; i < tau_pt.size(); i++) {
+    if (tau_pt[i] > 20 && abs(tau_eta[i]) < 2.3) {
+      if (tau_idDeepTau2018v2p5VSe[i] >= 2 && tau_idDeepTau2018v2p5VSmu[i] >= 1 && tau_idDeepTau2018v2p5VSjet[i] >=5) {
+        tau_num +=1;
+      }
+    }
+  }
+  if (tau_num >= 2) return true;
+  else return false;
+}
+
+int FindLeadingTau(cRVecF tau_pt)
+{
+    int idx = -1; // Return -1 if no good lepton is found.
+    double leading_pt = 0.0;
+    for(auto i = 0; i < tau_pt.size(); i++) {
+        if (tau_pt[i] > leading_pt) {
+            leading_pt = tau_pt[i];
+            idx = i;
+        }
+    }
+    return idx;
+}
+
+int FindSubLeadingTau(cRVecF tau_pt, int leading_idx)
+{
+    int idx = -1; // Return -1 if no sub leading lepton is found.
+    double subleading_pt = 0.0;
+    for(auto i = 0; i < tau_pt.size(); i++) {
+        if (i == leading_idx)
+          continue;
+        if (tau_pt[i] > subleading_pt) {
+            subleading_pt = tau_pt[i];
+            idx = i;
+        }
+    }
+    return idx;
+}
 
 float getFloatValue(Vec_t vec, Int_t index) {
   if (index >= 0) return vec[index];
@@ -698,4 +745,118 @@ bool PassVBFDiTauTrig2022(UInt_t ntrig,Vec_i trig_id,Vec_i trig_bits,Vec_t trig_
     }
   }
   return false;
+}
+
+
+// VBF_renano_Botao.root
+// 0 => Loose, 1 => Medium, 2 => Tight, 3 => DeepTau no spec WP, 4 => PNet no specified WP, 
+// 5 => ChargedIso, 6 => Dxy, 7 => e-tau inside filter, 8 => mu-tau inside filter, 
+// 9 => Single Tau, 10 => VBF DiTau, 11 => di-tau, 12 => e-tau, 13 => mu-tau, 
+// 14 => di-tau + PFJet, 15 => e-tau displaced, 16 => mu-tau displaced, 17 => di-tau displaced, 
+// 18 => Monitoring, 19 => VBF SingleTau Monitoring, 20 => DiTau+Jet Monitoring, 
+// 21 => Monitoring muTau displaced, 22 => OneProng, 23 => DiTau Monitoring, 24 => OverlapFilter, 
+// 25 => VBF DiTau monitoring, 26 => SingleTau Monitoring, 27 => MatchL1HLT, 28 => HPS, 
+// 29 => single PF-tau inside filter, 30 => VBF SingleTau for Tau;
+
+// 2024 C Tau
+// 0 => Loose, 1 => Medium, 2 => Tight, 3 => DeepTau no spec WP, 4 => ChargedIso, 5 => HPS, 
+// 6 => e-tau inside filter, 7 => mu-tau inside filter, 8 => single-tau inside filter, 9 => VBF matching, 
+// 10 => di-tau, 11 => e-tau, 12 => mu-tau, 13 => di-tau + PFJet, 14 => e-tau displaced, 15 => mu-tau displaced, 
+// 16 => di-tau displaced, 17 => Monitoring, 18 => MonitoringForVBFIsoTau, 19 => 'Monitoring di-tau + PFJet, 
+// 20 => 'Monitoring muTau displaced, 21 => OneProng, 22 => DiJetCorr, 23 => OverlapFilter, 24 => Dxy, 
+// 25 => MatchL1HLT, 26 => MatchL1HLT, 27 => VBF + DoubleTau Monitoring, 
+// 28 => For matching to monitoring trigger for 20 GeV tau leg of VBF triggers, 29 => single PF-tau inside filter for Tau;
+bool PassDiTauPNet(Int_t ntrig,cRVecF trig_l1pt, cRVecI trig_l1iso, cRVecU trig_id,cRVecI trig_bits,cRVecF trig_pt,cRVecF trig_eta,cRVecF trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 4 => PNet no specified WP
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<4)) != 0 && (trig_bits[it] & (1<<11)) != 0){ 
+        if ( trig_id[it] == 15 && trig_pt[it] > 30 && abs(trig_eta[it]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTaujetPNet(Int_t ntrig,cRVecF trig_l1pt, cRVecI trig_l1iso, cRVecU trig_id,cRVecI trig_bits,cRVecF trig_pt,cRVecF trig_eta,cRVecF trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 4 => PNet no specified WP
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<4)) != 0 && (trig_bits[it] & (1<<14)) != 0){ 
+        if ( trig_id[it] == 15 && trig_pt[it] > 26 && abs(trig_eta[it]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool PassDiTauDeepTau(Int_t ntrig,cRVecF trig_l1pt, cRVecI trig_l1iso, cRVecU trig_id,cRVecI trig_bits,cRVecF trig_pt,cRVecF trig_eta,cRVecF trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 3 => DeepTau no specified WP
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<3)) != 0 && (trig_bits[it] & (1<<11)) != 0){ 
+        if ( trig_id[it] == 15 && trig_pt[it] > 35 && abs(trig_eta[it]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+bool PassDiTaujetDeepTau(Int_t ntrig,cRVecF trig_l1pt, cRVecI trig_l1iso, cRVecU trig_id,cRVecI trig_bits,cRVecF trig_pt,cRVecF trig_eta,cRVecF trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 3 => DeepTau no specified WP
+      if((trig_bits[it] & (1<<1)) != 0 && (trig_bits[it] & (1<<3)) != 0 && (trig_bits[it] & (1<<14)) != 0){ 
+        if ( trig_id[it] == 15 && trig_pt[it] > 30 && abs(trig_eta[it]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool SelectVBFJets(cRVecF jet_pt, cRVecF jet_eta, cRVecF jet_phi, cRVecF jet_mass, float tau_eta,float tau_phi)
+{
+  int jet_num = 0;
+  for(auto i =0; i < jet_pt.size(); i++) {
+    float dR = deltaR(jet_eta[i],tau_eta,jet_phi[i],tau_phi);
+    if (dR > 0.5) {
+      if (jet_pt[i] > 45 && abs(jet_eta[i]) < 4.7) {
+        jet_num +=1;
+      }
+    }
+  }
+  if (jet_num >= 2) return true;
+  else return false;
+}
+bool SelectJet(cRVecF jet_pt, cRVecF jet_eta, cRVecF jet_phi, cRVecF jet_mass, float tau_eta,float tau_phi)
+{
+  int jet_num = 0;
+  for(auto i =0; i < jet_pt.size(); i++) {
+    float dR = deltaR(jet_eta[i],tau_eta,jet_phi[i],tau_phi);
+    if (dR > 0.5) {
+      if (jet_pt[i] > 60 && abs(jet_eta[i]) < 4.7) {
+        jet_num +=1;
+      }
+    }
+  }
+  if (jet_num >= 1) return true;
+  else return false;
 }
