@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Create turn on curves.')
 parser.add_argument('--input-data', required=True, type=str, help="skimmed data input")
 parser.add_argument('--input-dy-mc', required=True, type=str, help="skimmed DY MC input")
 parser.add_argument('--output', required=True, type=str, help="output file prefix")
-parser.add_argument('--channels', required=False, type=str, default='ditau,ditaujet,vbfsingletau', help="channels to process")
+parser.add_argument('--channels', required=False, type=str, default='ditau', help="channels to process")
 # parser.add_argument('--channels', required=False, type=str, default='ditau,ditau_withptiso_nobitcut,ditau_withptiso_bit1,ditau_withptiso_bit1_bit17,ditau_withptiso_bit1_bit17_0bit18', help="channels to process")
 parser.add_argument('--decay-modes', required=False, type=str, default='all', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
@@ -127,8 +127,8 @@ output_file = ROOT.TFile(args.output + '.root', 'RECREATE')
 input_files = [ args.input_data, args.input_dy_mc ]
 n_inputs = len(input_files)
 labels = [ 'pnet', 'deeptau' ]
-var = 'subleading_tau_pt'
-title, x_title = 'sub #tau p_{T}', 'sub #tau p_{T} (GeV)'
+var = 'leading_tau_pt'
+title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
 decay_modes = args.decay_modes.split(',')
 channels = args.channels.split(',')
 working_points = args.working_points.split(',')
@@ -139,7 +139,7 @@ hist_models = {
 turnOn_data = [None] * n_inputs
 for input_id in range(n_inputs):
     print("Creating {} histograms...".format(labels[input_id]))
-    turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'subleading_tau_idDeepTauVSjet', # tau_idDeepTau2017v2p1VSjet,
+    turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'leading_tau_idDeepTauVSjet', # tau_idDeepTau2017v2p1VSjet,
                                              working_points, hist_models, labels[input_id], var, output_file)
 
 colors = [ ROOT.kRed, ROOT.kBlack ]
