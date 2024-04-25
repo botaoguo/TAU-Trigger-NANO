@@ -175,6 +175,7 @@ bool SelectJet(cRVecF jet_pt, cRVecF jet_eta, cRVecF jet_phi, cRVecF jet_mass, f
 // 22 => OneProng, 23 => DiTau Monitoring, 24 => OverlapFilter, 25 => VBF DiTau monitoring, 
 // 26 => SingleTau Monitoring, 27 => MatchL1HLT, 28 => HPS, 29 => single PF-tau inside filter, 30 => VBF SingleTau for Tau
 
+// ditau pnet
 // HLT_DoublePNetTauhPFJet30_Medium_L2NN_eta2p3
 // HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1 (+Tight)
 // PNet monitoring bit 1, 4, 23
@@ -194,6 +195,8 @@ bool PassDiTauPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig
   }
   return false;
 }
+
+// ditau deeptau
 // HLT_DoubleMediumDeepTauPFTauHPS35_L2NN_eta2p1
 // HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1
 // DeepTau monitoring bit 3, 23
@@ -206,6 +209,50 @@ bool PassDiTauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF t
     if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 23 => DiTau Monitoring
       if((trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<23)) != 0){ 
         if ( trig_id[i] == 15 && trig_pt[i] > 35 && abs(trig_eta[i]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// mutau pnet
+// HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1 (+Medium, Tight)
+// HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1
+// HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1
+// PNet monitoring bit 0, 4, 13
+// PNet Medium 1, 4, 13
+// PNet Tight 2, 4, 13
+// take int wp as input, should in [0,1,2]
+bool PassMuTauPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, int wp){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 0 => Loose, 4 => PNet no specified WP, 13 => mu-tau
+      if((trig_bits[i] & (1<<0)) != 0 && (trig_bits[i] & (1<<wp)) != 0 && (trig_bits[i] & (1<<13)) != 0){ 
+        if ( trig_id[i] == 15 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+// mutau deeptau
+// HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1
+// DeepTau monitoring bit 1, 3, 13
+bool PassMuTauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 1 => Medium, 3 => DeepTau no specified WP, 13 => mu-tau
+      if((trig_bits[i] & (1<<1)) != 0 && (trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<13)) != 0){ 
+        if ( trig_id[i] == 15 ) {
           return true;
         }
       }

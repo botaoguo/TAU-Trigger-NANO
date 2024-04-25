@@ -1,6 +1,7 @@
 import os, sys
 import ROOT
 import argparse
+import time
 
 parser = argparse.ArgumentParser(description='Skim full tuple.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
@@ -13,6 +14,9 @@ sys.path.insert(0, path_prefix + 'Common/python')
 from AnalysisTools import *
 
 ROOT.gInterpreter.Declare('#include "{}interface/tau_ntupler.h"'.format(path_prefix))
+
+# Record the start time
+start_time = time.time()
 
 input_vec = ListToStdVector(args.input)
 df = ROOT.RDataFrame('Events', input_vec)
@@ -39,11 +43,6 @@ df = df.Define("match_sig_muon","Muon_match(TrigObj_id, TrigObj_eta, TrigObj_phi
 df = df.Define("probe_tau_idx","SelectTau(Tau_pt, Tau_eta, Tau_idDeepTau2018v2p5VSe, Tau_idDeepTau2018v2p5VSmu, Tau_idDeepTau2018v2p5VSjet)")\
        .Filter("probe_tau_idx != -1")
 
-# Find the second leading tau
-# df = df.Define("subleading_tau_idx", "FindSubLeadingTau(Tau_pt, probe_tau_idx)")
-
-
-# Create new columns with the kinematics of good leptons
 df = (
     df.Define("leading_tau_pt", "Tau_pt[probe_tau_idx]")
     .Define("leading_tau_eta", "Tau_eta[probe_tau_idx]")
@@ -73,33 +72,19 @@ df = df.Define("muon_mt", "MT(sig_muon_pt, PuppiMET_pt, sig_muon_phi, PuppiMET_p
 df = df.Define("vis_mass", "VisMass(sig_muon_pt, sig_muon_eta, sig_muon_phi, sig_muon_mass, leading_tau_pt, leading_tau_eta, leading_tau_phi, leading_tau_mass)")\
        .Filter("vis_mass >= 40 && vis_mass <= 80")
 
-# df = (
-#     df.Define("subleading_tau_pt", "Tau_pt[subleading_tau_idx]")
-#     .Define("subleading_tau_eta", "Tau_eta[subleading_tau_idx]")
-#     .Define("subleading_tau_phi", "Tau_phi[subleading_tau_idx]")
-#     .Define("subleading_tau_mass", "Tau_mass[subleading_tau_idx]")
-#     .Define("subleading_tau_decayMode", "Tau_decayMode[subleading_tau_idx]")
-#     .Define("subleading_tau_idDeepTauVSe", "Tau_idDeepTau2018v2p5VSe[subleading_tau_idx]")
-#     .Define("subleading_tau_idDeepTauVSmu", "Tau_idDeepTau2018v2p5VSmu[subleading_tau_idx]")
-#     .Define("subleading_tau_idDeepTauVSjet", "Tau_idDeepTau2018v2p5VSjet[subleading_tau_idx]")
-# )
-
-# df = df.Define("has_vbfjets","SelectVBFJets(Jet_pt, Jet_eta, Jet_phi, Jet_mass, leading_tau_eta, leading_tau_phi)")
-# df = df.Define("has_jet","SelectJet(Jet_pt, Jet_eta, Jet_phi, Jet_mass, leading_tau_eta, leading_tau_phi)")
-
 df = df.Define("weight","1")
 
-df_pnet = df.Define("pass_ditau","PassDiTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
-# df_pnet = df_pnet.Define("pass_singletau","HLT_SinglePNetTauhPFJet130_Loose_L2NN_eta2p3==1")
-# df_pnet = df_pnet.Define("pass_ditaujet","has_jet==1 && HLT_DoublePNetTauhPFJet26_L2NN_eta2p3_PFJet60==1")
-# df_pnet = df_pnet.Define("pass_vbfsingletau","has_vbfjets==1 && HLT_VBF_DiPFJet45_Mjj650_PNetTauhPFJet45_L2NN_eta2p3==1")
+df_pnet = df.Define("pass_ditau","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1==1 && PassDiTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+# pnet loose
+df_pnet_loose = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+# pnet medium
+df_pnet_medium = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+# pnet tight
+df_pnet_tight = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
 
-df_deeptau = df.Define("pass_ditau","PassDiTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
-# df_deeptau = df_deeptau.Define("pass_singletau","HLT_LooseDeepTauPFTauHPS180_L2NN_eta2p1==1")
-# df_deeptau = df_deeptau.Define("pass_ditaujet","has_jet==1 && HLT_DoubleMediumDeepTauPFTauHPS30_L2NN_eta2p1_PFJet60==1")
-# df_deeptau = df_deeptau.Define("pass_vbfsingletau","has_vbfjets==1 && HLT_VBF_DiPFJet45_Mjj650_MediumDeepTauPFTauHPS45_L2NN_eta2p1==1")
+df_deeptau = df.Define("pass_ditau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1==1 && PassDiTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df_deeptau = df_deeptau.Define("pass_mutau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 
-# Show the leading tau's pt and id for the first few events
 skim_branches = [
     "sig_muon_idx","sig_muon_pt", "sig_muon_eta", "sig_muon_phi", "sig_muon_mass",
     "sig_muon_iso", "sig_muon_mediumId", "match_sig_muon",
@@ -108,11 +93,21 @@ skim_branches = [
     "probe_tau_idx","leading_tau_idDeepTauVSjet","leading_tau_decayMode", 
     "leading_tau_pt","leading_tau_eta","leading_tau_phi","leading_tau_mass", "match_probe_tau",
 
-    "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1",
-    "HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1",
+    # ditau monitoring 
+    "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1", # ditau pnet
+    "HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1", # ditau deeptau
+    # mutau monitoring
+    "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1", # mutau pnet
+    "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1", # mutau deeptau
     "HLT_IsoMu24",
-    "weight", "pass_ditau",
+    "weight", "pass_ditau", "pass_mutau",
 ]
 
-df_pnet.Snapshot("Events", "zvbftest/test_pnet.root", skim_branches)
+df_pnet_loose.Snapshot("Events", "zvbftest/test_pnet_loose.root", skim_branches)
+df_pnet_medium.Snapshot("Events", "zvbftest/test_pnet_medium.root", skim_branches)
+df_pnet_tight.Snapshot("Events", "zvbftest/test_pnet_tight.root", skim_branches)
 df_deeptau.Snapshot("Events", "zvbftest/test_deeptau.root", skim_branches)
+
+# Record the end time
+end_time = time.time()
+print("Totally cost {} seconds...".format(end_time - start_time))

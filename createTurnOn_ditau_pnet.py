@@ -10,11 +10,9 @@ import sys
 import ROOT
 
 parser = argparse.ArgumentParser(description='Create turn on curves.')
-parser.add_argument('--input-data', required=True, type=str, help="skimmed data input")
-parser.add_argument('--input-dy-mc', required=True, type=str, help="skimmed DY MC input")
+parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
 parser.add_argument('--output', required=True, type=str, help="output file prefix")
-parser.add_argument('--channels', required=False, type=str, default='ditau', help="channels to process")
-# parser.add_argument('--channels', required=False, type=str, default='ditau,ditau_withptiso_nobitcut,ditau_withptiso_bit1,ditau_withptiso_bit1_bit17,ditau_withptiso_bit1_bit17_0bit18', help="channels to process")
+parser.add_argument('--channels', required=False, type=str, default='mutau', help="channels to process")
 parser.add_argument('--decay-modes', required=False, type=str, default='all', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
                     default='Tight',
@@ -124,9 +122,14 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
     return turnOn_data
 
 output_file = ROOT.TFile(args.output + '.root', 'RECREATE')
-input_files = [ args.input_data, args.input_dy_mc ]
+
+input_files = args.input
+print(input_files)
 n_inputs = len(input_files)
-labels = [ 'pnet', 'deeptau' ]
+labels = []
+for i in range(n_inputs):
+    input_name = os.path.basename(input_files[i])
+    labels.append(os.path.splitext(input_name)[0])
 var = 'leading_tau_pt'
 title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
 decay_modes = args.decay_modes.split(',')
@@ -142,7 +145,9 @@ for input_id in range(n_inputs):
     turnOn_data[input_id] = CreateHistograms(input_files[input_id], channels, decay_modes, 'leading_tau_idDeepTauVSjet', # tau_idDeepTau2017v2p1VSjet,
                                              working_points, hist_models, labels[input_id], var, output_file)
 
-colors = [ ROOT.kRed, ROOT.kBlack ]
+colors_list = [ ROOT.kBlack, ROOT.kRed, ROOT.kGreen, ROOT.kViolet]
+colors = colors_list[0:n_inputs]
+
 canvas = RootPlotting.CreateCanvas()
 
 n_plots = len(decay_modes) * len(channels) * len(working_points)
@@ -172,7 +177,7 @@ for channel in channels:
                                                                                   log_x=use_logx, title=title)
             RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
                                         ratio_y_title='Ratio', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(pos=(0.78, 0.28), size=(0.2, 0.15))
+            legend = RootPlotting.CreateLegend(pos=(0.68, 0.28), size=(0.2, 0.15))
             for input_id in range(n_inputs):
                 curve = curves[input_id]
                 try:
@@ -182,11 +187,12 @@ for channel in channels:
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
                 legend.AddEntry(curve, labels[input_id], 'PLE')
 
-                if input_id < n_inputs - 1:
+                # if input_id < n_inputs - 1:
+                if input_id > 0:
                     ratio_graph = RootPlotting.CreateEfficiencyRatioGraph(turnOns[input_id].hist_passed,
                                                                           turnOns[input_id].hist_total,
-                                                                          turnOns[-1].hist_passed,
-                                                                          turnOns[-1].hist_total)
+                                                                          turnOns[0].hist_passed,
+                                                                          turnOns[0].hist_total)
                     if ratio_graph:
                         output_file.WriteTObject(ratio_graph, 'ratio_{}'.format(plain_title), 'Overwrite')
                         ratio_pad.cd()
