@@ -5,7 +5,7 @@ import time
 
 parser = argparse.ArgumentParser(description='Skim full tuple.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
-# parser.add_argument('--type', required=True, type=str, help="pnet or deeptau")
+parser.add_argument('--output', required=True, type=str, help="output file's dir")
 args = parser.parse_args()
 
 
@@ -74,39 +74,34 @@ df = df.Define("vis_mass", "VisMass(sig_muon_pt, sig_muon_eta, sig_muon_phi, sig
 
 df = df.Define("weight","1")
 
-df_pnet = df.Define("pass_ditau","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1==1 && PassDiTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
-# pnet loose
-df_pnet_loose = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
-# pnet medium
-df_pnet_medium = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
-# pnet tight
-df_pnet_tight = df_pnet.Define("pass_mutau","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
-
-df_deeptau = df.Define("pass_ditau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1==1 && PassDiTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
-df_deeptau = df_deeptau.Define("pass_mutau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df = df.Define("pass_ditau_pnet","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1==1 && PassDiTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df = df.Define("pass_mutau_pnet_loose","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_mutau_pnet_medium","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_mutau_pnet_tight","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+df = df.Define("pass_ditau_deeptau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1==1 && PassDiTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df = df.Define("pass_mutau_deeptau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 
 skim_branches = [
     "sig_muon_idx","sig_muon_pt", "sig_muon_eta", "sig_muon_phi", "sig_muon_mass",
     "sig_muon_iso", "sig_muon_mediumId", "match_sig_muon",
     "veto_ele", "muon_tau_dR", "muon_mt", "vis_mass",
-    
     "probe_tau_idx","leading_tau_idDeepTauVSjet","leading_tau_decayMode", 
     "leading_tau_pt","leading_tau_eta","leading_tau_phi","leading_tau_mass", "match_probe_tau",
-
     # ditau monitoring 
     "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1", # ditau pnet
     "HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS35_L2NN_eta2p1_CrossL1", # ditau deeptau
     # mutau monitoring
     "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1", # mutau pnet
+    "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1",
+    "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1",
     "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1", # mutau deeptau
     "HLT_IsoMu24",
-    "weight", "pass_ditau", "pass_mutau",
+    "weight", 
+    "pass_ditau_deeptau", "pass_ditau_pnet",
+    "pass_mutau_deeptau", "pass_mutau_pnet_loose", "pass_mutau_pnet_medium", "pass_mutau_pnet_tight",
 ]
 
-df_pnet_loose.Snapshot("Events", "zvbftest/test_pnet_loose.root", skim_branches)
-df_pnet_medium.Snapshot("Events", "zvbftest/test_pnet_medium.root", skim_branches)
-df_pnet_tight.Snapshot("Events", "zvbftest/test_pnet_tight.root", skim_branches)
-df_deeptau.Snapshot("Events", "zvbftest/test_deeptau.root", skim_branches)
+df.Snapshot("Events", args.output + "/" + "skimtuple.root", skim_branches)
 
 # Record the end time
 end_time = time.time()

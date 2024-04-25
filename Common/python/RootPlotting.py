@@ -165,6 +165,7 @@ def CreateTwoPadLayout(canvas, ref_hist, ratio_ref_hist, main_box=Box(0.02, 0.25
 
     ratio_pad.cd()
     ratio_pad.SetLogx(log_x)
+    ratio_pad.SetGridy()
     ratio_ref_hist.Draw()
     ratio_ref_hist.SetTitle('')
 
