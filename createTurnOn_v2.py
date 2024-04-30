@@ -116,8 +116,8 @@ print("input file: {}".format(input_files))
 labels = args.types_pnet.split(',')
 # put deeptau in the last postion, take as denominator
 labels += args.types_deeptau.split(',')
-colors_list = [ ROOT.kRed, ROOT.kGreen, ROOT.kViolet, ROOT.kBlack]
-colors = colors_list[0:len(labels)]
+colors_list = [ ROOT.kRed, ROOT.kGreen, ROOT.kViolet, ROOT.kBlue, ROOT.kCyan, ROOT.kOrange, ROOT.kGray, ROOT.kBlack]
+colors = colors_list[0:len(labels)-1] + [colors_list[-1]]
 n_inputs = len(labels)
 var = 'leading_tau_pt'
 title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
@@ -174,7 +174,7 @@ for channel in channels:
                                                                                   log_x=use_logx, title=title)
             RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
                                         ratio_y_title='PN / DT', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(pos=(0.68, 0.28), size=(0.2, 0.15))
+            legend = RootPlotting.CreateLegend(pos=(0.68, 0.28), size=(0.2, 0.4))
             for input_id in range(n_inputs):
                 curve = curves[input_id]
                 try:
