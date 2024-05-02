@@ -6,6 +6,7 @@ import time
 parser = argparse.ArgumentParser(description='Skim full tuple.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
 parser.add_argument('--output', required=True, type=str, help="output file's dir")
+# parser.add_argument('--json', required=True, type=str, help="golden json file for data")
 args = parser.parse_args()
 
 path_prefix = '' if 'TAU-Trigger-NANO' in os.getcwd() else 'TAU-Trigger-NANO/'
@@ -19,6 +20,12 @@ start_time = time.time()
 
 input_vec = ListToStdVector(args.input)
 df = ROOT.RDataFrame('Events', input_vec)
+
+# JSON Filter
+df = df.Filter("jsonFilterlambda(run, luminosityBlock)")
+
+# apply met filter
+df = df.Filter("Flag_METFilters==1")
 
 # Tag and Probe
 # tag the signal muon

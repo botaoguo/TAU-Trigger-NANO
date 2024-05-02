@@ -1,14 +1,17 @@
-#include "ROOT/RDataFrame.hxx"
 #include "ROOT/RVec.hxx"
+#include "ROOT/RDataFrame.hxx"
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TLatex.h"
 #include "Math/Vector4D.h"
 #include "TStyle.h"
+#include <nlohmann/json.hpp>
  
 using namespace ROOT;
 using namespace ROOT::VecOps;
 using RNode = ROOT::RDF::RNode;
+using str = const std::string &;
+
 using cRVecF = const ROOT::RVecF &;
 using cRVecI = const ROOT::RVecI &;
 using cRVecC = const ROOT::RVecC &;
@@ -21,6 +24,69 @@ float deltaR(float eta_1, float eta_2, float phi_1, float phi_2){
    const float dRsq = std::pow(deta,2) + std::pow(dphi,2);
 
    return sqrt(dRsq);
+}
+
+auto jsonFilterlambda(uint run, uint luminosity) {
+  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Cert_Collisions2024_378981_379470_Golden.json");
+  nlohmann::json golden_json;
+  i >> golden_json;
+  bool matched = false;
+  // check if the run exists
+  if (golden_json.find(std::to_string(run)) != golden_json.end()) {
+    std::cout << "run : " << run << std::endl;
+    std::cout << "luminosity : " << luminosity << std::endl;
+    for (auto &luminosityrange : golden_json[std::to_string(run)]) {
+      if (luminosity >= luminosityrange[0] &&
+        luminosity <= luminosityrange[1]) {
+        matched = true;
+        break;
+      }
+    }
+  }
+  return matched;
+};
+
+auto jsonFilterlambda2023(uint run, uint luminosity) {
+  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Cert_Collisions2023_366442_370790_GoldenJSON.txt");
+  nlohmann::json golden_json;
+  i >> golden_json;
+  bool matched = false;
+  // check if the run exists
+  if (golden_json.find(std::to_string(run)) != golden_json.end()) {
+  // now loop over all luminosity blocks and check if the event is
+  // valid
+    for (auto &luminosityrange : golden_json[std::to_string(run)]) {
+      if (luminosity >= luminosityrange[0] &&
+        luminosity <= luminosityrange[1]) {
+        matched = true;
+        break;
+      }
+    }
+  }
+  return matched;
+};
+
+inline RNode JSONFilter(ROOT::RDF::RNode df, const std::string &json_path, const std::string &run, const std::string &luminosity) {
+  std::ifstream i(json_path);
+  nlohmann::json golden_json;
+  i >> golden_json;
+  auto jsonFilterlambda = [golden_json](UInt_t run, UInt_t luminosity) {
+    bool matched = false;
+    // check if the run exists
+    if (golden_json.find(std::to_string(run)) != golden_json.end()) {
+      // now loop over all luminosity blocks and check if the event is
+      // valid
+      for (auto &luminosityrange : golden_json[std::to_string(run)]) {
+        if (luminosity >= luminosityrange[0] &&
+          luminosity <= luminosityrange[1]) {
+          matched = true;
+          break;
+        }
+      }
+    }
+    return matched;
+  };
+  return df.Filter(jsonFilterlambda, {run, luminosity});
 }
 
 // Muon_pfRelIso04_all
@@ -61,7 +127,7 @@ int SelectTau(cRVecF tau_pt, cRVecF tau_eta, cRVecC tau_idDeepTau2018v2p5VSe, cR
   float max_tau_pt = -1.0;
   for(auto i =0; i < tau_pt.size(); i++) {
     if (tau_pt[i] > 20 && abs(tau_eta[i]) < 2.3) {
-      if (tau_idDeepTau2018v2p5VSe[i] >= 2 && tau_idDeepTau2018v2p5VSmu[i] >= 1 && tau_idDeepTau2018v2p5VSjet[i] >=5) {
+      if (tau_idDeepTau2018v2p5VSe[i] >= 2 && tau_idDeepTau2018v2p5VSmu[i] >= 4 && tau_idDeepTau2018v2p5VSjet[i] >=5) {
         // pick the index of the tau that has max pt
         if (tau_pt[i] > max_tau_pt) {
           idx = i;
@@ -502,6 +568,26 @@ bool PassMuTauDeepTau_nofilterbit(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_
     if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 13 => mu-tau
       if(1){ 
         if ( trig_id[i] == 15 && trig_pt[i] > 27 && abs(trig_eta[i]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+
+////////
+// HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1
+bool PassMuTauTrig2023DeepTau(uint ntrig,cRVecU trig_id,cRVecI trig_bits,cRVecF trig_pt,cRVecF trig_eta,cRVecF trig_phi,float tau_pt,float tau_eta,float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(int it=0; it < ntrig; it++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[it],trig_eta[it],trig_phi[it],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5
+      if((trig_bits[it] & (1<<7)) != 0 && (trig_bits[it] & (1<<26)) != 0 && trig_id[it] == 15){ 
+        if ( trig_id[it] == 15 && trig_pt[it] > 27 && abs(trig_eta[it]) < 2.1 ) {
           return true;
         }
       }
