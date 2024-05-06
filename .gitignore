@@ -30,3 +30,7 @@ plot_ratio.py
 runsf.sh
 steer_botao_farm.sh
 Cert_Collisions2022_355100_362760_GoldenJSON.txt
+
+2024_tagandprobe_wrapper.sh
+Collisions24_13p6TeV_378981_380238_DCSOnly_TkPx.json
+submit_tagandprobe_2024.sub

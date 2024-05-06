@@ -27,17 +27,18 @@ float deltaR(float eta_1, float eta_2, float phi_1, float phi_2){
 }
 
 auto jsonFilterlambda(uint run, uint luminosity) {
-  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Cert_Collisions2024_378981_379470_Golden.json");
+  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Collisions24_13p6TeV_378981_380238_DCSOnly_TkPx.txt");
   nlohmann::json golden_json;
   i >> golden_json;
   bool matched = false;
   // check if the run exists
   if (golden_json.find(std::to_string(run)) != golden_json.end()) {
-    std::cout << "run : " << run << std::endl;
-    std::cout << "luminosity : " << luminosity << std::endl;
+    // std::cout << "run : " << run << std::endl;
+    // std::cout << "luminosity : " << luminosity << std::endl;
     for (auto &luminosityrange : golden_json[std::to_string(run)]) {
       if (luminosity >= luminosityrange[0] &&
         luminosity <= luminosityrange[1]) {
+        // std::cout << "luminosity : " << luminosity << std::endl;
         matched = true;
         break;
       }
@@ -65,29 +66,6 @@ auto jsonFilterlambda2023(uint run, uint luminosity) {
   }
   return matched;
 };
-
-inline RNode JSONFilter(ROOT::RDF::RNode df, const std::string &json_path, const std::string &run, const std::string &luminosity) {
-  std::ifstream i(json_path);
-  nlohmann::json golden_json;
-  i >> golden_json;
-  auto jsonFilterlambda = [golden_json](UInt_t run, UInt_t luminosity) {
-    bool matched = false;
-    // check if the run exists
-    if (golden_json.find(std::to_string(run)) != golden_json.end()) {
-      // now loop over all luminosity blocks and check if the event is
-      // valid
-      for (auto &luminosityrange : golden_json[std::to_string(run)]) {
-        if (luminosity >= luminosityrange[0] &&
-          luminosity <= luminosityrange[1]) {
-          matched = true;
-          break;
-        }
-      }
-    }
-    return matched;
-  };
-  return df.Filter(jsonFilterlambda, {run, luminosity});
-}
 
 // Muon_pfRelIso04_all
 // muon_pt > 24, muon_eta < 2.1, muon_iso < 0.1, medium_id

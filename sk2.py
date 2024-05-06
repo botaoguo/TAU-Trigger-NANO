@@ -6,7 +6,7 @@ import time
 parser = argparse.ArgumentParser(description='Skim full tuple.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
 parser.add_argument('--output', required=True, type=str, help="output file's dir")
-# parser.add_argument('--json', required=True, type=str, help="golden json file for data")
+parser.add_argument('--version', required=True, type=str, help="")
 args = parser.parse_args()
 
 path_prefix = '' if 'TAU-Trigger-NANO' in os.getcwd() else 'TAU-Trigger-NANO/'
@@ -94,6 +94,7 @@ df = df.Define("pass_mutau_pnet_loose","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose
 df = df.Define("pass_mutau_pnet_medium","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
 df = df.Define("pass_mutau_pnet_tight","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassMuTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
 df = df.Define("pass_mutau_deeptau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df = df.Define("pass_mutau_deeptau_2024","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 # etau
 df = df.Define("pass_etau_pnet_loose","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
 df = df.Define("pass_etau_pnet_medium","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
@@ -164,7 +165,7 @@ skim_branches = [
     "HLT_IsoMu24",
     "weight", 
     "pass_ditau_deeptau", "pass_ditau_pnet_medium", "pass_ditau_pnet_tight",
-    "pass_mutau_deeptau", "pass_mutau_pnet_loose", "pass_mutau_pnet_medium", "pass_mutau_pnet_tight",
+    "pass_mutau_deeptau", "pass_mutau_pnet_loose", "pass_mutau_pnet_medium", "pass_mutau_pnet_tight", "pass_mutau_deeptau_2024",
     "pass_etau_deeptau", "pass_etau_pnet_loose", "pass_etau_pnet_medium", "pass_etau_pnet_tight",
     "pass_ditaujet_deeptau", "pass_ditaujet_pnet",
     "pass_singletau_deeptau", "pass_singletau_pnet_loose", "pass_singletau_pnet_medium", "pass_singletau_pnet_tight",
@@ -175,7 +176,8 @@ skim_branches = [
     "pass_vbfsingletau_pnet_nofilterbit", "pass_vbfsingletau_deeptau_nofilterbit",
 ]
 
-output_file = args.output + "/" + "skimtuple.root"
+output_file = args.output + "/" + "skimtuple_" + args.version + ".root"
+# output_file = args.output + "/" + "skimtuple.root"
 df.Snapshot("Events", output_file, skim_branches)
 
 # Record the end time

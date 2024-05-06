@@ -76,7 +76,8 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
             turnOn_data[dm][wp] = {}
             for channel in channels:
                 turnOn_data[dm][wp][channel] = {}
-                df_ch = df_wp.Filter('pass_{} > 0.5'.format(channel))
+                year = input_file[-9:-5]
+                df_ch = df_wp.Filter('pass_{0}_deeptau_{1} > 0.5'.format(channel, year))
                 for model_name, hist_model in hist_models.items():
                     turn_on = TurnOnData()
                     turn_on.hist_total = df_wp.Histo1D(hist_model, var, 'weight')
@@ -129,7 +130,7 @@ n_inputs = len(input_files)
 labels = []
 for i in range(n_inputs):
     input_name = os.path.basename(input_files[i])
-    labels.append(os.path.splitext(input_name)[0])
+    labels.append(os.path.splitext(input_name)[0][-4:])
 var = 'leading_tau_pt'
 title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
 decay_modes = args.decay_modes.split(',')
