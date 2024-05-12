@@ -19,6 +19,7 @@ parser.add_argument('--decay-modes', required=False, type=str, default='all', he
 parser.add_argument('--working-points', required=False, type=str,
                     default='Tight',
                     help="working points to process")
+parser.add_argument('--var', required=False, type=str, default='leading_tau_pt', help="plot var")
 args = parser.parse_args()
 
 path_prefix = '' if 'TAU-Trigger-NANO' in os.getcwd() else 'TAU-Trigger-NANO/'
@@ -47,6 +48,14 @@ def CreateBins(max_pt, for_fitting):
             n += 1
         use_logx = max_pt > 200
         return np.append(bins, high_pt_bins[0:n+1]), use_logx
+
+ptcut_dict = {
+    "mutau": 27, # pnet 27, deeptau 27
+    "ditau": 35, # pnet 30, deeptau 35,
+    "ditaujet": 30, # pnet 26, deeptau 30
+    "vbfditau": 20, # pnet 20, deeptau 20
+    "vbfsingletau": 45, # pnet 45, deeptau 45
+}    
 
 class TurnOnData:
     def __init__(self):
@@ -78,11 +87,16 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
             turnOn_data[dm][wp] = {}
             for channel in channels:
                 turnOn_data[dm][wp][channel] = {}
+                # add tau pt cut for eta and phi
+                if "eta" in var or "phi" in var:
+                    df_wp = df_wp.Filter("leading_tau_pt>{}".format(ptcut_dict[channel]))
                 df_ch = df_wp.Filter('pass_{}_{} > 0.5'.format(channel, label))
                 for model_name, hist_model in hist_models.items():
                     turn_on = TurnOnData()
                     turn_on.hist_total = df_wp.Histo1D(hist_model, var, 'weight')
                     turn_on.hist_passed = df_ch.Histo1D(hist_model, var, 'weight')
+                    # for i in range(turn_on.hist_passed.GetNbinsX() + 1):
+                    #     print("pass event: {}".format(turn_on.hist_passed.GetBinContent(i)))
                     turnOn_data[dm][wp][channel][model_name] = turn_on
 
     for dm in decay_modes:
@@ -119,12 +133,24 @@ labels += args.types_deeptau.split(',')
 colors_list = [ ROOT.kRed, ROOT.kGreen, ROOT.kViolet, ROOT.kBlue, ROOT.kCyan, ROOT.kOrange, ROOT.kGray, ROOT.kBlack]
 colors = colors_list[0:len(labels)-1] + [colors_list[-1]]
 n_inputs = len(labels)
-var = 'leading_tau_pt'
-title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
+var = args.var
 decay_modes = args.decay_modes.split(',')
 channels = args.channels.split(',')
 working_points = args.working_points.split(',')
-bins, use_logx = CreateBins(200, False)
+if "pt" in var:
+    bins, use_logx = CreateBins(200, False)
+    title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
+elif "eta" in var:
+    bins = np.arange(-2.3, 2.3, step=0.2)
+    bins = np.append(bins, [2.3])
+    use_logx = False
+    title, x_title = '#tau #eta', '#tau #eta'
+elif "phi" in var:
+    bins = np.arange(-3.2, 3.2, step=0.2)
+    bins = np.append(bins, [3.2])
+    use_logx = False
+    title, x_title = '#tau #phi', '#tau #phi'
+
 hist_models = {
     'plot': ROOT.RDF.TH1DModel(var, var, len(bins) - 1, array('d', bins)),
 }
@@ -141,7 +167,6 @@ for input_id in range(n_inputs):
 
 
 canvas = RootPlotting.CreateCanvas()
-
 n_plots = len(decay_modes) * len(channels) * len(working_points)
 plot_id = 0
 for channel in channels:
@@ -174,7 +199,9 @@ for channel in channels:
                                                                                   log_x=use_logx, title=title)
             RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
                                         ratio_y_title='PN / DT', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(pos=(0.68, 0.28), size=(0.2, 0.4))
+            legend = RootPlotting.CreateLegend(pos=(0.68, 0.08), size=(0.2, 0.05*n_inputs))
+            if "eta" in var or "phi" in var:
+                text = RootPlotting.DrawLabel("Offline #tau pT >= {} GeV".format(ptcut_dict[channel]),pos=(0.35,0.92))
             for input_id in range(n_inputs):
                 curve = curves[input_id]
                 try:

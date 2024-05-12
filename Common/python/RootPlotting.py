@@ -234,10 +234,10 @@ def GetPrintSuffix(current_page_number, total_number_of_pages):
 def PrintAndClear(canvas, file, title, current_page_number, total_number_of_pages, pads = []):
     canvas.Print(file + GetPrintSuffix(current_page_number, total_number_of_pages),
                  'Title:{}'.format(title))
+    canvas.SaveAs(file.replace("pdf","png"))
     for pad in pads:
         pad.Clear()
     canvas.Clear()
-
 
 def GetYRange(curves, consider_errors=True):
     y_values = []
