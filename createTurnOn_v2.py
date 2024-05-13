@@ -20,6 +20,7 @@ parser.add_argument('--working-points', required=False, type=str,
                     default='Tight',
                     help="working points to process")
 parser.add_argument('--var', required=False, type=str, default='leading_tau_pt', help="plot var")
+parser.add_argument('--vbfditau_ptcut', required=False, type=int, default=30, help="VBF ditau pt cut on eta and phi")
 args = parser.parse_args()
 
 path_prefix = '' if 'TAU-Trigger-NANO' in os.getcwd() else 'TAU-Trigger-NANO/'
@@ -53,7 +54,7 @@ ptcut_dict = {
     "mutau": 27, # pnet 27, deeptau 27
     "ditau": 35, # pnet 30, deeptau 35,
     "ditaujet": 30, # pnet 26, deeptau 30
-    "vbfditau": 20, # pnet 20, deeptau 20
+    "vbfditau": args.vbfditau_ptcut, # pnet 20, deeptau 20, extra cut 25, 30
     "vbfsingletau": 45, # pnet 45, deeptau 45
 }    
 
@@ -62,6 +63,8 @@ class TurnOnData:
         self.hist_total = None
         self.hist_passed = None
         self.eff = None
+        self.pass_yield = 0
+        self.total_yield = 0
 
 def CreateHistograms(input_file, channels, decay_modes, discr_name, working_points, hist_models, label, var,
                      output_file):
@@ -95,6 +98,8 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
                     turn_on = TurnOnData()
                     turn_on.hist_total = df_wp.Histo1D(hist_model, var, 'weight')
                     turn_on.hist_passed = df_ch.Histo1D(hist_model, var, 'weight')
+                    turn_on.total_yield = turn_on.hist_total.Integral()
+                    turn_on.pass_yield = turn_on.hist_passed.Integral()
                     # for i in range(turn_on.hist_passed.GetNbinsX() + 1):
                     #     print("pass event: {}".format(turn_on.hist_passed.GetBinContent(i)))
                     turnOn_data[dm][wp][channel][model_name] = turn_on
@@ -141,13 +146,15 @@ if "pt" in var:
     bins, use_logx = CreateBins(200, False)
     title, x_title = '#tau p_{T}', '#tau p_{T} (GeV)'
 elif "eta" in var:
-    bins = np.arange(-2.3, 2.3, step=0.2)
-    bins = np.append(bins, [2.3])
+    bins = np.linspace(-2.3, 2.3, 12)
+    # bins = np.arange(-2.3, 2.3, step=0.2)
+    # bins = np.append(bins, [2.3])
     use_logx = False
     title, x_title = '#tau #eta', '#tau #eta'
 elif "phi" in var:
-    bins = np.arange(-3.2, 3.2, step=0.2)
-    bins = np.append(bins, [3.2])
+    bins = np.linspace(-3.2, 3.2, 12)
+    # bins = np.arange(-3.2, 3.2, step=0.2)
+    # bins = np.append(bins, [3.2])
     use_logx = False
     title, x_title = '#tau #phi', '#tau #phi'
 
@@ -183,6 +190,8 @@ for channel in channels:
             ratio_ref_hist = ref_hist.Clone()
             turnOns = [None] * n_inputs
             curves = [None] * n_inputs
+            pass_yield = [None] * n_inputs
+            total_yield = [None] * n_inputs
             # turnOn_data[0] -> pnet_loose
             # turnOn_data[1] -> pnet_medium
             # turnOn_data[2] -> pnet_tight
@@ -190,6 +199,8 @@ for channel in channels:
             for input_id in range(n_inputs):
                 turnOns[input_id] = turnOn_data[input_id][dm][wp][channel]['plot']
                 curves[input_id] = turnOns[input_id].eff
+                pass_yield[input_id] = turnOns[input_id].pass_yield
+                total_yield[input_id] = turnOns[input_id].total_yield
             y_min, y_max = (0, 1)
             y_title = 'Efficiency'
             title = '{} {}{}'.format(channel, wp, dm_label)
@@ -199,17 +210,18 @@ for channel in channels:
                                                                                   log_x=use_logx, title=title)
             RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
                                         ratio_y_title='PN / DT', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(pos=(0.68, 0.08), size=(0.2, 0.05*n_inputs))
+            legend = RootPlotting.CreateLegend(pos=(0.48, 0.08), size=(0.2, 0.05*n_inputs))
             if "eta" in var or "phi" in var:
                 text = RootPlotting.DrawLabel("Offline #tau pT >= {} GeV".format(ptcut_dict[channel]),pos=(0.35,0.92))
             for input_id in range(n_inputs):
                 curve = curves[input_id]
+                text_yield = pass_yield[input_id]
                 try:
                     curve.Draw('SAME')
                 except:
                     continue
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
-                legend.AddEntry(curve, labels[input_id], 'PLE')
+                legend.AddEntry(curve, labels[input_id] + "({})".format(int(text_yield)), 'PLE')
 
                 if input_id < n_inputs - 1:
                     # turnOns[0], [1], [2] as numerator
