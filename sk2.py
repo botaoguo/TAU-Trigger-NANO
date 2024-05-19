@@ -4,7 +4,8 @@ import argparse
 import time
 
 parser = argparse.ArgumentParser(description='Skim full tuple.')
-parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
+parser.add_argument('--input', required=False, type=str, nargs='+', help="input files")
+parser.add_argument('--inputlist', required=False, type=str, help="input files")
 parser.add_argument('--output', required=True, type=str, help="output file's dir")
 parser.add_argument('--version', required=True, type=str, help="")
 args = parser.parse_args()
@@ -17,8 +18,13 @@ ROOT.gInterpreter.Declare('#include "{}interface/tau_ntupler.h"'.format(path_pre
 
 # Record the start time
 start_time = time.time()
+if args.inputlist is not None:
+    f = open(args.inputlist, "r")
+    files = f.read().splitlines()
+elif args.input is not None:
+    files = args.input
+input_vec = ListToStdVector(files)
 
-input_vec = ListToStdVector(args.input)
 df = ROOT.RDataFrame('Events', input_vec)
 
 # JSON Filter
@@ -31,6 +37,7 @@ df = df.Filter("Flag_METFilters==1")
 # tag the signal muon
 df = df.Define("sig_muon_idx","SelectMuon(Muon_pt, Muon_eta, Muon_phi, Muon_pfRelIso04_all, Muon_mediumId)")\
        .Filter("sig_muon_idx != -1")
+
 df = df.Filter("HLT_IsoMu24==1")
 df = (
     df.Define("sig_muon_pt", "Muon_pt[sig_muon_idx]")
@@ -46,7 +53,7 @@ df = df.Define("match_sig_muon","Muon_match(TrigObj_id, TrigObj_eta, TrigObj_phi
        .Filter("match_sig_muon == 1")
 
 # probe tau
-# tau_pt > 20, tau_eta < 2.3, VSe >= 2, VSmu >= 1, VSjet >= 5
+# tau_pt > 20, tau_eta < 2.3, VSe >= 2, VSmu >= 4, VSjet >= 5
 df = df.Define("probe_tau_idx","SelectTau(Tau_pt, Tau_eta, Tau_idDeepTau2018v2p5VSe, Tau_idDeepTau2018v2p5VSmu, Tau_idDeepTau2018v2p5VSjet)")\
        .Filter("probe_tau_idx != -1")
 
@@ -64,6 +71,7 @@ df = (
 # match tau with trig dR < 0.5
 df = df.Define("match_probe_tau","Tau_match(TrigObj_id, TrigObj_eta, TrigObj_phi, leading_tau_eta, leading_tau_phi)")\
        .Filter("match_probe_tau == 1")
+
 # tau decay mode != 5 && != 6
 df = df.Filter("leading_tau_decayMode != 5 && leading_tau_decayMode != 6")
 
@@ -74,12 +82,15 @@ df = df.Define("veto_ele", "VetoEle(Electron_pt, Electron_eta, Electron_mvaIso)"
 # sig_muon and probe_tau dR > 0.5
 df = df.Define("muon_tau_dR", "deltaR(sig_muon_eta, leading_tau_eta, sig_muon_phi, leading_tau_phi)")\
        .Filter("muon_tau_dR > 0.5")
+
 # mt betweeb muon and met should < 30 GeV
 df = df.Define("muon_mt", "MT(sig_muon_pt, PuppiMET_pt, sig_muon_phi, PuppiMET_phi)")\
        .Filter("muon_mt > 30")
+
 # vis_mass in [40,80] GeV
 df = df.Define("vis_mass", "VisMass(sig_muon_pt, sig_muon_eta, sig_muon_phi, sig_muon_mass, leading_tau_pt, leading_tau_eta, leading_tau_phi, leading_tau_mass)")\
        .Filter("vis_mass >= 40 && vis_mass <= 80")
+
 # muon_charge + tau_charge == 0
 df = df.Filter("sig_muon_charge + leading_tau_charge == 0")
 
@@ -163,7 +174,7 @@ skim_branches = [
     "HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS20_eta2p1_SingleL1", # vbfditau deeptau bit: 3,25
     
     "HLT_IsoMu24",
-    "weight", 
+    "weight", "luminosityBlock", "run",
     "pass_ditau_deeptau", "pass_ditau_pnet_medium", "pass_ditau_pnet_tight",
     "pass_mutau_deeptau", "pass_mutau_pnet_loose", "pass_mutau_pnet_medium", "pass_mutau_pnet_tight", "pass_mutau_deeptau_2024",
     "pass_etau_deeptau", "pass_etau_pnet_loose", "pass_etau_pnet_medium", "pass_etau_pnet_tight",
@@ -177,6 +188,7 @@ skim_branches = [
 ]
 
 output_file = args.output + "/" + "skimtuple_" + args.version + ".root"
+cutflow.Write()
 # output_file = args.output + "/" + "skimtuple.root"
 df.Snapshot("Events", output_file, skim_branches)
 
