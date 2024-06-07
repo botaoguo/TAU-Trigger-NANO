@@ -38,6 +38,13 @@ def ApplyDefaultLineStyle(obj, color):
     obj.SetLineWidth(2)
     obj.SetLineColor(color)
 
+def ApplyDefaultLineStyleMarker(obj, color, marker):
+    obj.SetMarkerStyle(marker)
+    # obj.SetMarkerSize(4)
+    obj.SetMarkerColor(color)
+    obj.SetLineWidth(2)
+    obj.SetLineColor(color)
+
 def ApplyAxisSetup(frame_hist, ratio_frame_hist=None, x_title="", y_title="", ratio_y_title="",
                    axis_title_sizes=(0.055, 0.055), axis_title_offsets=(1,1.4), axis_label_sizes=(0.04,0.04),
                    axis_label_offsets=(0.005,0.005), ratio_item_size_sf=2.76, max_ratio=1.5, ratio_y_title_size=0.055,

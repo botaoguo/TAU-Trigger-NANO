@@ -107,10 +107,10 @@ df = df.Define("pass_mutau_pnet_tight","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight
 df = df.Define("pass_mutau_deeptau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 df = df.Define("pass_mutau_deeptau_2024","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassMuTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 # etau
-df = df.Define("pass_etau_pnet_loose","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
-df = df.Define("pass_etau_pnet_medium","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
-df = df.Define("pass_etau_pnet_tight","HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Tight_eta2p3_CrossL1_ETau_Monitoring==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
-df = df.Define("pass_etau_deeptau","HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1==1 && PassETauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+df = df.Define("pass_etau_pnet_loose","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_etau_pnet_medium","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_etau_pnet_tight","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+df = df.Define("pass_etau_deeptau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassETauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 # ditaujet
 df = df.Define("pass_ditaujet_pnet","HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1==1 && PassDiTaujetPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 df = df.Define("pass_ditaujet_deeptau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1==1 && PassDiTaujetDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
@@ -153,11 +153,11 @@ skim_branches = [
     "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1", # 1,4,13
     "HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1", # 2,4,13
     "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1", # mutau deeptau bit: 3,13
-    # etau monitoring
-    "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Loose_eta2p3_CrossL1_ETau_Monitoring", # etau pnet bit: 0,4,27
-    "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_eta2p3_CrossL1_ETau_Monitoring", # 1,4,27
-    "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Tight_eta2p3_CrossL1_ETau_Monitoring", # 2,4,27
-    "HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS30_eta2p1_CrossL1", # etau deeptau bit: 3,27
+    # etau monitoring, same as mutau
+    # etau pnet bit: loose 0,4,27
+    # medium1,4,27
+    # tight 2,4,27
+    # etau deeptau bit: 3,27
     # ditaujet monitoring
     "HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1", # ditaujet pnet bit: 4,20
     "HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1", # ditaujet deeptau bit: 3,20
@@ -188,7 +188,6 @@ skim_branches = [
 ]
 
 output_file = args.output + "/" + "skimtuple_" + args.version + ".root"
-cutflow.Write()
 # output_file = args.output + "/" + "skimtuple.root"
 df.Snapshot("Events", output_file, skim_branches)
 

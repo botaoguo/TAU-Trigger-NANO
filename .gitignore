@@ -15,6 +15,7 @@ __init__*
 # some test
 *test*
 crab*/
+job/
 out/
 SingleMuon
 filelist*/
