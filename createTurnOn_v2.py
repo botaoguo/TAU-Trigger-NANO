@@ -52,6 +52,7 @@ def CreateBins(max_pt, for_fitting):
 
 ptcut_dict = {
     "mutau": 27, # pnet 27, deeptau 27
+    "etau": 30,
     "ditau": 35, # pnet 30, deeptau 35,
     "ditaujet": 30, # pnet 26, deeptau 30
     "vbfditau": args.vbfditau_ptcut, # pnet 20, deeptau 20, extra cut 25, 30
@@ -221,7 +222,7 @@ for channel in channels:
                 except:
                     continue
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
-                legend.AddEntry(curve, labels[input_id] + "({})".format(int(text_yield)), 'PLE')
+                legend.AddEntry(curve, labels[input_id] + '({})'.format(int(text_yield)), 'PLE')
 
                 if input_id < n_inputs - 1:
                     # turnOns[0], [1], [2] as numerator

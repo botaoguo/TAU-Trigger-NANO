@@ -69,8 +69,9 @@ df = (
     .Define("leading_tau_idDeepTauVSjet", "Tau_idDeepTau2018v2p5VSjet[probe_tau_idx]")
 )
 # match tau with trig dR < 0.5
-df = df.Define("match_probe_tau","Tau_match(TrigObj_id, TrigObj_eta, TrigObj_phi, leading_tau_eta, leading_tau_phi)")\
-       .Filter("match_probe_tau == 1")
+# no need to match tau and trigobj in the denominator, so drop it
+# df = df.Define("match_probe_tau","Tau_match(TrigObj_id, TrigObj_eta, TrigObj_phi, leading_tau_eta, leading_tau_phi)")\
+#        .Filter("match_probe_tau == 1")
 
 # tau decay mode != 5 && != 6
 df = df.Filter("leading_tau_decayMode != 5 && leading_tau_decayMode != 6")
@@ -143,7 +144,7 @@ skim_branches = [
     "sig_muon_iso", "sig_muon_mediumId", "match_sig_muon",
     "veto_ele", "muon_tau_dR", "muon_mt", "vis_mass",
     "probe_tau_idx","leading_tau_idDeepTauVSjet","leading_tau_decayMode", "leading_tau_charge",
-    "leading_tau_pt","leading_tau_eta","leading_tau_phi","leading_tau_mass", "match_probe_tau",
+    "leading_tau_pt","leading_tau_eta","leading_tau_phi","leading_tau_mass",
     # ditau monitoring 
     "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Medium_L2NN_eta2p3_CrossL1", # ditau pnet bit: 1,4,23
     "HLT_IsoMu24_eta2p1_PNetTauhPFJet30_Tight_L2NN_eta2p3_CrossL1", # 2,4,23
