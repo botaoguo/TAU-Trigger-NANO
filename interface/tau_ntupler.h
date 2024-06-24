@@ -321,6 +321,58 @@ bool PassETauPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_
   }
   return false;
 }
+// ETau PNet check
+bool PassETauPNet_nobit4(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, int wp){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 0 => Loose, 4 => PNet no specified WP, 27 => MatchL1HLT
+      if((trig_bits[i] & (1<<wp)) != 0 && (trig_bits[i] & (1<<27)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > 26 && abs(trig_eta[i]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+// ETau PNet check
+bool PassETauPNet_nobit27(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, int wp){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 0 => Loose, 4 => PNet no specified WP, 27 => MatchL1HLT
+      if((trig_bits[i] & (1<<wp)) != 0 && (trig_bits[i] & (1<<4)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > 26 && abs(trig_eta[i]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+// ETau PNet check (using mutau bit and extra etau selection)
+bool PassETauPNet_withMutaubit(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, int wp){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 0 => Loose, 4 => PNet no specified WP, 13 => mu-tau
+      if((trig_bits[i] & (1<<wp)) != 0 && (trig_bits[i] & (1<<4)) != 0 && (trig_bits[i] & (1<<13)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > 26 && abs(trig_eta[i]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // ETau DeepTau
 bool PassETauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
   if (tau_pt <= 0)
@@ -338,7 +390,22 @@ bool PassETauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI tr
   }
   return false;
 }
-
+bool PassETauDeepTau_withMutaubit(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 27 => MatchL1HLT
+      if((trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<13)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > 26 && abs(trig_eta[i]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 // DiTaujet PNet
 bool PassDiTaujetPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
   if (tau_pt <= 0)
@@ -391,6 +458,23 @@ bool PassSingleTauPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF 
   }
   return false;
 }
+/// singletau PNet no filter bit
+bool PassSingleTauPNet_nofilterbit(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, int wp){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 0 => Loose, 4 => PNet no specified WP, 26 => SingleTau Monitoring
+      if(1){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 130 && trig_l1pt[i] > 130 && abs(trig_eta[i]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 // singletau DeepTau
 bool PassSingleTauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
   if (tau_pt <= 0)
@@ -400,6 +484,23 @@ bool PassSingleTauDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVe
     float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
     if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 26 => SingleTau Monitoring
       if((trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<26)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 180 && trig_l1pt[i] > 130 && abs(trig_eta[i]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+// singletau DeepTau no filter bit
+bool PassSingleTauDeepTau_nofilterbit(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 26 => SingleTau Monitoring
+      if(1){ 
         if ( trig_id[i] == 15 && trig_pt[i] > 180 && trig_l1pt[i] > 130 && abs(trig_eta[i]) < 2.1 ) {
           return true;
         }

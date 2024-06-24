@@ -112,6 +112,20 @@ df = df.Define("pass_etau_pnet_loose","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_
 df = df.Define("pass_etau_pnet_medium","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
 df = df.Define("pass_etau_pnet_tight","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassETauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
 df = df.Define("pass_etau_deeptau","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassETauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+# etau check no bit4
+df = df.Define("pass_etau_pnet_loose_nobit4","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassETauPNet_nobit4(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_etau_pnet_medium_nobit4","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassETauPNet_nobit4(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_etau_pnet_tight_nobit4","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassETauPNet_nobit4(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+# etau check no bit27
+df = df.Define("pass_etau_pnet_loose_nobit27","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassETauPNet_nobit27(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_etau_pnet_medium_nobit27","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassETauPNet_nobit27(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_etau_pnet_tight_nobit27","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassETauPNet_nobit27(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+# etau check with mutau bit and extra etau selection
+df = df.Define("pass_etau_pnet_loose_withmutaubit","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Loose_eta2p3_CrossL1==1 && PassETauPNet_withMutaubit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_etau_pnet_medium_withmutaubit","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Medium_eta2p3_CrossL1==1 && PassETauPNet_withMutaubit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_etau_pnet_tight_withmutaubit","HLT_IsoMu20_eta2p1_PNetTauhPFJet27_Tight_eta2p3_CrossL1==1 && PassETauPNet_withMutaubit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+df = df.Define("pass_etau_deeptau_withmutaubit","HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1==1 && PassETauDeepTau_withMutaubit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+
 # ditaujet
 df = df.Define("pass_ditaujet_pnet","HLT_IsoMu24_eta2p1_PNetTauhPFJet26_L2NN_eta2p3_CrossL1==1 && PassDiTaujetPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 df = df.Define("pass_ditaujet_deeptau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS30_L2NN_eta2p1_CrossL1==1 && PassDiTaujetDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
@@ -120,6 +134,12 @@ df = df.Define("pass_singletau_pnet_loose","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_
 df = df.Define("pass_singletau_pnet_medium","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Medium_L2NN_eta2p3_CrossL1==1 && PassSingleTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
 df = df.Define("pass_singletau_pnet_tight","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Tight_L2NN_eta2p3_CrossL1==1 && PassSingleTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
 df = df.Define("pass_singletau_deeptau","HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1==1 && PassSingleTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+# singletau no filter bit check
+df = df.Define("pass_singletau_pnet_loose_nofilterbit","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Loose_L2NN_eta2p3_CrossL1==1 && PassSingleTauPNet_nofilterbit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 0)")
+df = df.Define("pass_singletau_pnet_medium_nofilterbit","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Medium_L2NN_eta2p3_CrossL1==1 && PassSingleTauPNet_nofilterbit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 1)")
+df = df.Define("pass_singletau_pnet_tight_nofilterbit","HLT_IsoMu24_eta2p1_PNetTauhPFJet130_Tight_L2NN_eta2p3_CrossL1==1 && PassSingleTauPNet_nofilterbit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi, 2)")
+df = df.Define("pass_singletau_deeptau_nofilterbit","HLT_IsoMu24_eta2p1_LooseDeepTauPFTauHPS180_eta2p1==1 && PassSingleTauDeepTau_nofilterbit(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
+
 # vbfsingletau
 df = df.Define("pass_vbfsingletau_pnet","HLT_IsoMu24_eta2p1_PNetTauhPFJet45_L2NN_eta2p3_CrossL1==1 && PassVBFSingleTauPNet(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
 df = df.Define("pass_vbfsingletau_deeptau","HLT_IsoMu24_eta2p1_MediumDeepTauPFTauHPS45_L2NN_eta2p1_CrossL1==1 && PassVBFSingleTauDeepTau(TrigObj_id, TrigObj_filterBits, TrigObj_pt, TrigObj_l1iso, TrigObj_l1pt, TrigObj_eta, TrigObj_phi, leading_tau_pt, leading_tau_eta, leading_tau_phi)")
@@ -178,9 +198,18 @@ skim_branches = [
     "weight", "luminosityBlock", "run",
     "pass_ditau_deeptau", "pass_ditau_pnet_medium", "pass_ditau_pnet_tight",
     "pass_mutau_deeptau", "pass_mutau_pnet_loose", "pass_mutau_pnet_medium", "pass_mutau_pnet_tight", "pass_mutau_deeptau_2024",
+
     "pass_etau_deeptau", "pass_etau_pnet_loose", "pass_etau_pnet_medium", "pass_etau_pnet_tight",
+    # etau check
+    "pass_etau_pnet_loose_nobit4", "pass_etau_pnet_medium_nobit4", "pass_etau_pnet_tight_nobit4",
+    "pass_etau_pnet_loose_nobit27", "pass_etau_pnet_medium_nobit27", "pass_etau_pnet_tight_nobit27",
+    "pass_etau_deeptau_withmutaubit", "pass_etau_pnet_loose_withmutaubit", "pass_etau_pnet_medium_withmutaubit", "pass_etau_pnet_tight_withmutaubit",
+
     "pass_ditaujet_deeptau", "pass_ditaujet_pnet",
+    # single tau 
     "pass_singletau_deeptau", "pass_singletau_pnet_loose", "pass_singletau_pnet_medium", "pass_singletau_pnet_tight",
+    "pass_singletau_deeptau_nofilterbit", "pass_singletau_pnet_loose_nofilterbit", "pass_singletau_pnet_medium_nofilterbit", "pass_singletau_pnet_tight_nofilterbit",
+
     "pass_vbfsingletau_pnet", "pass_vbfsingletau_deeptau",
     "pass_vbfditau_pnet", "pass_vbfditau_deeptau",
     
