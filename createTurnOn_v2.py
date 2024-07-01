@@ -15,7 +15,7 @@ parser.add_argument('--output', required=True, type=str, help="output file prefi
 parser.add_argument('--types-pnet', required=False, type=str, default='pnet_loose,pnet_medium,pnet_tight', help="pnet type")
 parser.add_argument('--types-deeptau', required=False, type=str, default='deeptau', help="deeptau type")
 parser.add_argument('--channels', required=False, type=str, default='mutau', help="channels to process")
-parser.add_argument('--decay-modes', required=False, type=str, default='all', help="decay modes to process")
+parser.add_argument('--decay-modes', required=False, type=str, default='all,0,1,10,11,1011', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
                     default='Tight',
                     help="working points to process")
@@ -79,10 +79,10 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
             df_dm = df
         elif dm == '1011':
             dm_labels[dm] = '_dm{}'.format(dm)
-            df_dm = df.Filter('tau_decayMode == 10 | tau_decayMode == 11')
+            df_dm = df.Filter('leading_tau_decayMode == 10 | leading_tau_decayMode == 11')
         else:
             dm_labels[dm] = '_dm{}'.format(dm)
-            df_dm = df.Filter('tau_decayMode == {}'.format(dm))
+            df_dm = df.Filter('leading_tau_decayMode == {}'.format(dm))
         turnOn_data[dm] = {}
         for wp in working_points:
             wp_bit = ParseEnum(DiscriminatorWP, wp)
@@ -129,6 +129,8 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
 
     return turnOn_data
 
+out_dir = os.path.dirname(args.output)
+os.system("mkdir -p {}".format(out_dir))
 output_file = ROOT.TFile(args.output + '.root', 'RECREATE')
 
 input_files = args.input
@@ -211,7 +213,7 @@ for channel in channels:
                                                                                   log_x=use_logx, title=title)
             RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
                                         ratio_y_title='PN / DT', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(pos=(0.48, 0.08), size=(0.2, 0.05*n_inputs))
+            legend = RootPlotting.CreateLegend(pos=(0.25, 0.12), size=(0.2, 0.05*n_inputs))
             if "eta" in var or "phi" in var:
                 text = RootPlotting.DrawLabel("Offline #tau pT >= {} GeV".format(ptcut_dict[channel]),pos=(0.35,0.92))
             for input_id in range(n_inputs):
@@ -242,7 +244,7 @@ for channel in channels:
 
             canvas.Update()
             output_file.WriteTObject(canvas, 'canvas_{}'.format(plain_title), 'Overwrite')
-            RootPlotting.PrintAndClear(canvas, args.output + '.pdf', plain_title, plot_id, n_plots,
+            RootPlotting.PrintAndClear(canvas, args.output + '.pdf', plain_title, plot_id, n_plots, dm_plain_label,
                                        [ main_pad, ratio_pad ])
             plot_id += 1
 output_file.Close()

@@ -24,12 +24,11 @@ class Channel:
     ditau = 4
 
 class DiscriminatorWP:
-    VVVLoose = 0
-    VVLoose = 1
-    VLoose = 2
-    Loose = 3
-    Medium = 4
-    Tight = 5
-    VTight = 6
-    VVTight = 7
-    VVVTight = 8
+    VVVLoose = 1
+    VVLoose = 2
+    VLoose = 3
+    Loose = 4
+    Medium = 5
+    Tight = 6
+    VTight = 7
+    VVTight = 8

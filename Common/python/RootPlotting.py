@@ -238,10 +238,10 @@ def GetPrintSuffix(current_page_number, total_number_of_pages):
             print_suffix = ')'
     return print_suffix
 
-def PrintAndClear(canvas, file, title, current_page_number, total_number_of_pages, pads = []):
+def PrintAndClear(canvas, file, title, current_page_number, total_number_of_pages, dm, pads = []):
     canvas.Print(file + GetPrintSuffix(current_page_number, total_number_of_pages),
                  'Title:{}'.format(title))
-    canvas.SaveAs(file.replace("pdf","png"))
+    canvas.SaveAs(file[:-4] + "{}.png".format(dm))
     for pad in pads:
         pad.Clear()
     canvas.Clear()
