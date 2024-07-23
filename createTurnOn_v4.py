@@ -12,8 +12,9 @@ import ROOT
 parser = argparse.ArgumentParser(description='Create turn on curves.')
 parser.add_argument('--input', required=True, type=str, nargs='+', help="input files")
 parser.add_argument('--output', required=True, type=str, help="output file prefix")
-parser.add_argument('--types-pnet', required=False, type=str, default='pnet_loose,pnet_medium,pnet_tight', help="pnet type")
-parser.add_argument('--types-deeptau', required=False, type=str, default='deeptau', help="deeptau type")
+parser.add_argument('--types-trigger', required=False, type=str, default='pnet_loose', help="trigger type")
+# parser.add_argument('--types-pnet', required=False, type=str, default='pnet_loose,pnet_medium,pnet_tight', help="pnet type")
+# parser.add_argument('--types-deeptau', required=False, type=str, default='deeptau', help="deeptau type")
 parser.add_argument('--channels', required=False, type=str, default='mutau', help="channels to process")
 parser.add_argument('--decay-modes', required=False, type=str, default='all,0,1,10,11,1011', help="decay modes to process")
 parser.add_argument('--working-points', required=False, type=str,
@@ -53,7 +54,8 @@ def CreateBins(max_pt, for_fitting):
 ptcut_dict = {
     "mutau": 27, # pnet 27, deeptau 27
     "etau": 30,
-    "ditau": 35, # pnet 30, deeptau 35,
+    # "ditau": 35, # pnet 30, deeptau 35,
+    "ditau": 40,
     "ditaujet": 30, # pnet 26, deeptau 30
     "vbfditau": args.vbfditau_ptcut, # pnet 20, deeptau 20, extra cut 25, 30
     "vbfsingletau": 45, # pnet 45, deeptau 45
@@ -68,7 +70,7 @@ class TurnOnData:
         self.total_yield = 0
 
 def CreateHistograms(input_file, channels, decay_modes, discr_name, working_points, hist_models, label, var,
-                     output_file):
+                     output_file, era):
     df = ROOT.RDataFrame('Events', input_file)
     turnOn_data = {}
     dm_labels = {}
@@ -110,7 +112,7 @@ def CreateHistograms(input_file, channels, decay_modes, discr_name, working_poin
             for channel in channels:
                 for model_name, hist_model in hist_models.items():
                     turn_on = turnOn_data[dm][wp][channel][model_name]
-                    name_pattern = '{}_{}_{}{}_{}_{{}}'.format(label, channel, wp, dm_labels[dm], model_name)
+                    name_pattern = '{}_{}_{}{}_{}_{{}}_{}'.format(label, channel, wp, dm_labels[dm], model_name, era)
                     turn_on.name_pattern = name_pattern
                     if 'fit' in model_name:
                         passed, total, eff = AutoRebinAndEfficiency(turn_on.hist_passed.GetPtr(),
@@ -135,11 +137,17 @@ output_file = ROOT.TFile(args.output + '.root', 'RECREATE')
 
 input_files = args.input
 print("input file: {}".format(input_files))
-labels = args.types_pnet.split(',')
+
+# labels = args.types_pnet.split(',')
 # put deeptau in the last postion, take as denominator
-labels += args.types_deeptau.split(',')
+# labels += args.types_deeptau.split(',')
+labels = args.types_trigger.split(',')
+
+labels = labels*len(input_files)
 colors_list = [ ROOT.kRed, ROOT.kGreen, ROOT.kViolet, ROOT.kBlue, ROOT.kCyan, ROOT.kOrange, ROOT.kGray, ROOT.kBlack]
+# colors_list = [ ROOT.kRed, ROOT.kBlack, ROOT.kRed, ROOT.kBlack, ROOT.kRed, ROOT.kBlack]
 colors = colors_list[0:len(labels)-1] + [colors_list[-1]]
+marker = [20,21,22] # 20 circle, 21 square, 22 triangle
 n_inputs = len(labels)
 var = args.var
 decay_modes = args.decay_modes.split(',')
@@ -171,9 +179,12 @@ turnOn_data = [None] * n_inputs
 # turnOn_data[2] -> pnet_tight
 # turnOn_data[3] -> deeptau
 for input_id in range(n_inputs):
-    print("Creating {} histograms...".format(labels[input_id]))
-    turnOn_data[input_id] = CreateHistograms(input_files, channels, decay_modes, 'leading_tau_idDeepTauVSjet', # tau_idDeepTau2017v2p1VSjet,
-                                             working_points, hist_models, labels[input_id], var, output_file)
+    fileprefix = os.path.basename(input_files[int(input_id)])
+    fileprefix = os.path.splitext(fileprefix)[0]
+    era = fileprefix.strip("skimtuple_")
+    print("Creating {0} histograms for {1}...".format(labels[input_id],era))
+    turnOn_data[input_id] = CreateHistograms(input_files[int(input_id)], channels, decay_modes, 'leading_tau_idDeepTauVSjet', # tau_idDeepTau2017v2p1VSjet,
+                                             working_points, hist_models, labels[input_id], var, output_file, era)
 
 
 canvas = RootPlotting.CreateCanvas()
@@ -219,12 +230,17 @@ for channel in channels:
             for input_id in range(n_inputs):
                 curve = curves[input_id]
                 text_yield = pass_yield[input_id]
+                # define the era
+                fileprefix = os.path.basename(input_files[int(input_id)])
+                fileprefix = os.path.splitext(fileprefix)[0]
+                era = fileprefix.strip("skimtuple_")
                 try:
                     curve.Draw('SAME')
                 except:
                     continue
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
-                legend.AddEntry(curve, labels[input_id] + '({})'.format(int(text_yield)), 'PLE')
+                # RootPlotting.ApplyDefaultLineStyleMarker(curve, colors[input_id], marker[int(input_id)])
+                legend.AddEntry(curve, labels[input_id] + " {} ".format(era) + "({})".format(int(text_yield)), 'PLE')
 
                 if input_id < n_inputs - 1:
                     # turnOns[0], [1], [2] as numerator
@@ -238,6 +254,7 @@ for channel in channels:
                         ratio_pad.cd()
                         ratio_color = colors[input_id] if n_inputs > 2 else ROOT.kBlack
                         RootPlotting.ApplyDefaultLineStyle(ratio_graph[input_id], ratio_color)
+                        # RootPlotting.ApplyDefaultLineStyleMarker(ratio_graph[input_id], ratio_color, marker[int(input_id)])
                         ratio_graph[input_id].Draw("0PE SAME")
                         main_pad.cd()
             legend.Draw()
