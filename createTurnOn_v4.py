@@ -54,8 +54,8 @@ def CreateBins(max_pt, for_fitting):
 ptcut_dict = {
     "mutau": 27, # pnet 27, deeptau 27
     "etau": 30,
-    # "ditau": 35, # pnet 30, deeptau 35,
-    "ditau": 40,
+    "ditau": 35, # pnet 30, deeptau 35,
+    # "ditau": 40,
     "ditaujet": 30, # pnet 26, deeptau 30
     "vbfditau": args.vbfditau_ptcut, # pnet 20, deeptau 20, extra cut 25, 30
     "vbfsingletau": 45, # pnet 45, deeptau 45
