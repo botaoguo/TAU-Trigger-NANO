@@ -27,7 +27,7 @@ float deltaR(float eta_1, float eta_2, float phi_1, float phi_2){
 }
 
 auto jsonFilterlambda(uint run, uint luminosity) {
-  std::ifstream i("/afs/cern.ch/user/b/boguo/TAU-Trigger-NANO/Collisions24_13p6TeV_378981_386071_DCSOnly_TkPx.txt");
+  std::ifstream i("./2024C_Golden.txt");
   nlohmann::json golden_json;
   i >> golden_json;
   bool matched = false;
@@ -48,7 +48,7 @@ auto jsonFilterlambda(uint run, uint luminosity) {
 };
 
 auto jsonFilterlambda2023(uint run, uint luminosity) {
-  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Cert_Collisions2023_366442_370790_GoldenJSON.txt");
+  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Cert_Collisions2023_366442_370790_Golden.txt");
   nlohmann::json golden_json;
   i >> golden_json;
   bool matched = false;
@@ -160,6 +160,21 @@ bool VetoEle(cRVecF ele_pt, cRVecF ele_eta, cRVecF ele_mvaIso)
   for(auto i = 0; i < ele_pt.size(); i++) {
     if (ele_pt[i] > 10 && abs(ele_eta[i]) < 2.5 && ele_mvaIso[i] > 0.5) {
       return false;
+    }
+  }
+  return true;
+}
+
+bool VetoSecondMu(cRVecF muon_pt, cRVecF muon_eta, cRVecB muon_looseId, int SigMuon_idx)
+{
+  // std::cout << "SigMuon_idx: " << SigMuon_idx << std::endl;
+  for(auto i = 0; i < muon_pt.size(); i++) {
+    if (muon_pt[i] > 10 && abs(muon_eta[i]) < 2.4 && muon_looseId[i] == true) {
+      if (i != SigMuon_idx) {
+        // std::cout << "i: " << i << std::endl;
+        // find the second muon, so reject the event
+        return false;
+      }
     }
   }
   return true;
@@ -461,6 +476,23 @@ bool PassDiTaujetPNet(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI t
   }
   return false;
 }
+// DiTaujet PNet L1 tighter cut
+bool PassDiTaujetPNet_TightL1cut(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, float l1ptcut){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 4 => PNet no specified WP, 20 => DiTau+Jet Monitoring
+      if((trig_bits[i] & (1<<4)) != 0 && (trig_bits[i] & (1<<20)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 26 && trig_l1iso[i] > 0 && trig_l1pt[i] > l1ptcut && abs(trig_eta[i]) < 2.3 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 // DiTaujet DeepTau
 bool PassDiTaujetDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi){
   if (tau_pt <= 0)
@@ -471,6 +503,23 @@ bool PassDiTaujetDeepTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVec
     if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 20 => DiTau+Jet Monitoring
       if((trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<20)) != 0){ 
         if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > 26 && abs(trig_eta[i]) < 2.1 ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+// DiTaujet DeepTau L1 tighter cut
+bool PassDiTaujetDeepTau_TightL1cut(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecI trig_l1iso, cRVecF trig_l1pt, cRVecF trig_eta, cRVecF trig_phi, float tau_pt, float tau_eta, float tau_phi, float l1ptcut){
+  if (tau_pt <= 0)
+    return false;
+  for(auto i=0; i < trig_pt.size(); i++){
+    const ROOT::Math::PtEtaPhiMVector trig(trig_pt[i],trig_eta[i],trig_phi[i],0);
+    float dR = deltaR(trig.Eta(),tau_eta,trig.Phi(),tau_phi);
+    if (dR < 0.5){ //dR < 0.5, 3 => DeepTau no specified WP, 20 => DiTau+Jet Monitoring
+      if((trig_bits[i] & (1<<3)) != 0 && (trig_bits[i] & (1<<20)) != 0){ 
+        if ( trig_id[i] == 15 && trig_pt[i] > 30 && trig_l1iso[i] > 0 && trig_l1pt[i] > l1ptcut && abs(trig_eta[i]) < 2.1 ) {
           return true;
         }
       }
@@ -784,7 +833,42 @@ int MatchSecondTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig
   }
   return idx;
 }
+// mu24 && (L1 seeds) / mu24; for HLT, mu24 && (HLT) / mu24 && (L1 seeds)
+// since mu24 is alreay added in the process
 
+// mutau 
+// L1_Mu18er2p1_Tau24er2p1 OR L1_Mu18er2p1_Tau26er2p1
+
+// etau
+// L1_Mu18er2p1_Tau24er2p1 OR L1_Mu18er2p1_Tau26er2p1
+
+// ditau
+// L1_Mu22er2p1_IsoTau32er2p1 OR L1_Mu22er2p1_IsoTau34er2p1 
+// OR L1_Mu22er2p1_IsoTau36er2p1 OR L1_Mu22er2p1_Tau70er2p1
+
+// ditaujet
+// L1_Mu18er2p1_Tau24er2p1 OR L1_Mu18er2p1_Tau26er2p1
+// L1_Mu18er2p1_Tau26er2p1_Jet55 L1_Mu18er2p1_Tau26er2p1_Jet70
+
+// singletau
+// L1_Mu22er2p1_IsoTau40er2p1
+
+// vbfsingletau
+// L1_Mu22er2p1_IsoTau32er2p1 OR L1_Mu22er2p1_IsoTau34er2p1 
+// OR L1_Mu22er2p1_IsoTau36er2p1 OR L1_Mu22er2p1_Tau70er2p1
+
+// vbfditau
+// L1_SingleMu22
+
+// define
+
+// -> L1 Eff = L1 seeds
+// -> L1 Eff with bit = L1 seeds && bit
+
+// -> HLT Eff = HLT / L1 seeds
+
+// -> HLT Eff with bit = HLT && bit / L1 seeds && bit
+// -> HLT Eff with bit ALL = HLT && bit / L1 seeds && bit
 //////////////////////////////
 // match muon and genlepton //
 //////////////////////////////
