@@ -27,7 +27,7 @@ float deltaR(float eta_1, float eta_2, float phi_1, float phi_2){
 }
 
 auto jsonFilterlambda(uint run, uint luminosity) {
-  std::ifstream i("/eos/user/b/boguo/botao/CMSSW_10_6_29/src/PhysicsTools/NanoAODTools/TAU-Trigger-NANO/Collisions24_13p6TeV_378981_383467_DCSOnly_TkPx.txt");
+  std::ifstream i("/afs/cern.ch/user/b/boguo/TAU-Trigger-NANO/Collisions24_13p6TeV_378981_386071_DCSOnly_TkPx.txt");
   nlohmann::json golden_json;
   i >> golden_json;
   bool matched = false;
@@ -779,6 +779,42 @@ int MatchSecondTau(cRVecU trig_id, cRVecI trig_bits, cRVecF trig_pt, cRVecF trig
           idx = i;
           return idx;
         }
+      }
+    }
+  }
+  return idx;
+}
+
+//////////////////////////////
+// match muon and genlepton //
+//////////////////////////////
+int MuonGenMatch(cRVecI GenPart_pdgId, cRVecF GenPart_pt, cRVecF GenPart_eta, cRVecF GenPart_phi, cRVecF GenPart_mass, float muon_eta, float muon_phi) {
+  int idx = -1;
+  for(auto i=0; i < GenPart_pdgId.size(); i++){
+    if ( ( abs(GenPart_pdgId[i]) == 13 ) ) {
+      const ROOT::Math::PtEtaPhiMVector genpart(GenPart_pt[i],GenPart_eta[i],GenPart_phi[i],GenPart_mass[i]);
+      float dR = deltaR(genpart.Eta(), muon_eta, genpart.Phi(), muon_phi);
+      if (dR < 0.5) {
+        idx = i;
+        return idx;
+      }
+    }
+  }
+  return idx;
+}
+/////////////////////////////
+// match tau and genlepton //
+/////////////////////////////
+int TauGenMatch(cRVecI GenPart_pdgId, cRVecU GenPart_statusFlags, cRVecF GenPart_pt, cRVecF GenPart_eta, cRVecF GenPart_phi, cRVecF GenPart_mass, float tau_eta, float tau_phi) {
+  int idx = -1;
+  for(auto i=0; i < GenPart_pdgId.size(); i++){
+    // statusFlag bit0 isPrompt, bit5 isDirectPromptTauDecayProduct, bit12 isFirstCopy
+    if ( ( abs(GenPart_pdgId[i]) == 15 ) && ( (GenPart_statusFlags[i] & (1<<0)) !=0 || (GenPart_statusFlags[i] & (1<<5)) !=0 ) && ( (GenPart_statusFlags[i] & (1<<12)) !=0 ) ) {
+      const ROOT::Math::PtEtaPhiMVector genpart(GenPart_pt[i],GenPart_eta[i],GenPart_phi[i],GenPart_mass[i]);
+      float dR = deltaR(genpart.Eta(), tau_eta, genpart.Phi(), tau_phi);
+      if (dR < 0.5) {
+        idx = i;
+        return idx;
       }
     }
   }

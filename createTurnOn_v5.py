@@ -86,11 +86,11 @@ ptcut_dict = {
 HLTptcut_dict = {
     "mutau": 27,
     "etau": 30,
-    "ditau": 30, # 
-    "ditaujet": 26, #
+    "ditau": 30,
+    "ditaujet": 26,
     "vbfditau": 20,
     "vbfsingletau": 45,
-    "singletau" : 130, # 
+    "singletau" : 130,
 }
 latex_dict = {
     "mutau" : "#mu#tau_{h}",
@@ -232,13 +232,13 @@ elif "eta" in var:
     # bins = np.arange(-2.3, 2.3, step=0.2)
     # bins = np.append(bins, [2.3])
     use_logx = False
-    title, x_title = 'Offline #tau_{h} #eta', 'Offline #tau_{h} #eta'
+    title, x_title = 'Offline #eta^{#tau}', 'Offline #eta^{#tau}'
 elif "phi" in var:
     bins = np.linspace(-3.2, 3.2, 12)
     # bins = np.arange(-3.2, 3.2, step=0.2)
     # bins = np.append(bins, [3.2])
     use_logx = False
-    title, x_title = 'Offline #tau_{h} #phi', 'Offline #tau_{h} #phi'
+    title, x_title = 'Offline #phi^{#tau}', 'Offline #phi^{#tau}'
 elif "PV_npvs" in var:
     bins = np.linspace(0, 60, 7)
     bins = np.append(bins, [80])
@@ -303,36 +303,29 @@ for channel in channels:
             # title = '{} {} run <= 382262'.format(channel, dm_label)
             # mutau_Tight
             plain_title = '{}_{}{}'.format(channel, wp, dm_plain_label)
-            main_pad, ratio_pad, title_controls = RootPlotting.CreateTwoPadLayout(canvas, ref_hist, ratio_ref_hist,
-                                                                                  log_x=use_logx, title=title)
-            RootPlotting.ApplyAxisSetup(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
-                                        ratio_y_title='Ratio', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
-            legend = RootPlotting.CreateLegend(text_size=0.05,pos=(0.43, 0.07), size=(0.2, 0.05*n_inputs))
+            title_controls = RootPlotting.CreateNoPadLayout(canvas, ref_hist, ratio_ref_hist,
+                                                                                  log_x=use_logx, title=title, x_title=x_title, y_title=y_title)
+            # RootPlotting.ApplyAxisSetup2(ref_hist, ratio_ref_hist, x_title=x_title, y_title=y_title,
+            #                             ratio_y_title='Ratio', y_range=(y_min, y_max * 1.1), max_ratio=1.5)
+            legend = RootPlotting.CreateLegend(text_size=0.035, pos=(0.37, 0.27), size=(0.2, 0.05*n_inputs))
+
             if "pt" not in var:
                 txt = "p^{#tau}_{T}(Offline) " + "> {} GeV".format(ptcut_dict[channel])
-                text = RootPlotting.DrawLabel(txt,text_size=0.05,pos=(0.55,0.27))
+                text = RootPlotting.DrawLabel(txt,text_size=0.035,pos=(0.55,0.45))
             else:
                 txt = "p^{#tau}_{T}(HLT) " + "> {} GeV".format(HLTptcut_dict[channel])
-                text2 = RootPlotting.DrawLabel(txt,text_size=0.05,pos=(0.55,0.27))
-            text3 = RootPlotting.DrawLabel("Offline Medium WP Tau ID Applied",text_size=0.05,pos=(0.55,0.2))
-            text4 = RootPlotting.DrawLabel("{} Trigger: Tau Performance".format(latex_dict[channel]),text_size=0.035,pos=(0.38,0.93))
+                text2 = RootPlotting.DrawLabel(txt,text_size=0.035,pos=(0.55,0.45))
+            text3 = RootPlotting.DrawLabel("Offline Medium WP Tau ID Applied",text_size=0.035,pos=(0.55,0.4))
+            if channels[0] == "vbfsingletau":
+                text4 = RootPlotting.DrawLabel("{} Trigger: Tau Performance".format(latex_dict[channel]),text_size=0.032,pos=(0.4,0.86))
+            else:
+                text4 = RootPlotting.DrawLabel("{} Trigger: Tau Performance".format(latex_dict[channel]),text_size=0.032,pos=(0.35,0.86))
             canvas.cd()
             
-            cms_text = RootPlotting.DrawLabel("CMS",text_size=0.035,font=61,pos=(0.2,0.951))
-            prelim_text = RootPlotting.DrawLabel("Preliminary",text_size=0.035,font=52,pos=(0.32,0.95))
-            lumi_text = RootPlotting.DrawLabel("109 fb^{-1}, 2024 (13.6 TeV)",text_size=0.035,font=42,pos=(0.75,0.95))
+            cms_text = RootPlotting.DrawLabel("CMS",text_size=0.035,font=61,pos=(0.14,0.921))
+            prelim_text = RootPlotting.DrawLabel("Preliminary",text_size=0.035,font=52,pos=(0.26,0.92))
+            lumi_text = RootPlotting.DrawLabel("109 fb^{-1}, 2024 (13.6 TeV)",text_size=0.035,font=42,pos=(0.72,0.92))
             canvas.Update()
-            main_pad.cd()
-
-            ratio_pad.cd()
-            xmin = ratio_ref_hist.GetXaxis().GetXmin()
-            xmax = ratio_ref_hist.GetXaxis().GetXmax()
-            line = ROOT.TLine(xmin, 1.0, xmax, 1.0)
-            line.SetLineColor(ROOT.kGray + 2)
-            # line.SetLineStyle(2)
-            line.SetLineWidth(3)
-            line.Draw("same")
-            main_pad.cd()
 
             for input_id in range(n_inputs):
                 curve = curves[input_id]
@@ -348,8 +341,7 @@ for channel in channels:
                 RootPlotting.ApplyDefaultLineStyle(curve, colors[input_id])
                 # RootPlotting.ApplyDefaultLineStyleMarker(curve, colors[input_id], marker[int(input_id)])
                 # legend.AddEntry(curve, labels[input_id] + " {} ".format(era) + "({})".format(int(text_yield)), 'PLE')
-                # legend.AddEntry(curve, labels_dict[labels[input_id]] + " " + era, 'PLE')
-                legend.AddEntry(curve, era, 'PLE')
+                legend.AddEntry(curve, labels_dict[labels[input_id]] + " " + era, 'PLE')
 
                 if input_id < n_inputs - 1:
                     # turnOns[0], [1], [2] as numerator
@@ -358,19 +350,11 @@ for channel in channels:
                                                                           turnOns[input_id].hist_total,
                                                                           turnOns[-1].hist_passed,
                                                                           turnOns[-1].hist_total)
-                    if ratio_graph[input_id]:
-                        output_file.WriteTObject(ratio_graph[input_id], 'ratio_{0}_{1}'.format(labels[input_id],plain_title), 'Overwrite')
-                        ratio_pad.cd()
-                        ratio_color = colors[input_id] if n_inputs > 2 else ROOT.kBlack
-                        RootPlotting.ApplyDefaultLineStyle(ratio_graph[input_id], ratio_color)
-                        # RootPlotting.ApplyDefaultLineStyleMarker(ratio_graph[input_id], ratio_color, marker[int(input_id)])
-                        ratio_graph[input_id].Draw("0PE SAME")
-                        main_pad.cd()
             legend.Draw()
 
             canvas.Update()
             output_file.WriteTObject(canvas, 'canvas_{}'.format(plain_title), 'Overwrite')
             RootPlotting.PrintAndClear(canvas, args.output + '.pdf', plain_title, plot_id, n_plots, dm_plain_label,
-                                       [ main_pad, ratio_pad ])
+                                       [ ])
             plot_id += 1
 output_file.Close()

@@ -123,7 +123,8 @@ for channel in channels:
             for dm in decay_modes:
                 print('Processing {} {} WP DM = {}'.format(channel, wp, dm))
                 dm_label = '_dm{}'.format(dm) if dm != 'all' else ''
-                name_pattern = '{{}}_{}_{}{}_fit_eff'.format(channel, wp, dm_label)
+                # name_pattern = '{{}}_{}_{}{}_fit_eff'.format(channel, wp, dm_label)
+                name_pattern = 'deeptau_{}_{}{}_fit_eff'.format(channel, wp, dm_label)
                 dm_label = '_dm'+ dm if len(dm) > 0 else ''
                 eff_data_root = file.Get(name_pattern.format('data'))
                 eff_mc_root = file.Get(name_pattern.format('mc'))

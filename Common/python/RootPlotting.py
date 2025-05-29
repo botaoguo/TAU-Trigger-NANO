@@ -2,6 +2,7 @@ from array import array
 import math
 import numpy as np
 import ROOT
+import cmsstyle as CMS
 
 from AnalysisTools import KatzLog
 
@@ -22,10 +23,10 @@ def ApplyDefaultGlobalStyle():
     ROOT.gStyle.SetPaperSize(20, 20)
     ROOT.gStyle.SetPalette(1)
     ROOT.gStyle.SetEndErrorSize(0)
-    ROOT.gStyle.SetPadGridX(False)
-    ROOT.gStyle.SetPadGridY(False)
-    ROOT.gStyle.SetPadTickX(False)
-    ROOT.gStyle.SetPadTickY(False)
+    ROOT.gStyle.SetPadGridX(True)
+    ROOT.gStyle.SetPadGridY(True)
+    ROOT.gStyle.SetPadTickX(True)
+    ROOT.gStyle.SetPadTickY(True)
     ROOT.gStyle.SetTickLength(0.03, "X")
     ROOT.gStyle.SetTickLength(0.03, "Y")
     ROOT.gStyle.SetNdivisions(510, "X")
@@ -52,9 +53,12 @@ def ApplyAxisSetup(frame_hist, ratio_frame_hist=None, x_title="", y_title="", ra
                    y_range=None):
     frame_hist.GetYaxis().SetTitle(y_title)
     frame_hist.GetYaxis().SetTitleSize(axis_title_sizes[1])
-    frame_hist.GetYaxis().SetTitleOffset(axis_title_offsets[1])
+    frame_hist.GetYaxis().SetTitleOffset(axis_title_offsets[0])
     frame_hist.GetYaxis().SetLabelSize(axis_label_sizes[1])
-    frame_hist.GetYaxis().SetLabelOffset(axis_label_offsets[1])
+    frame_hist.GetYaxis().SetLabelOffset(axis_label_offsets[0])
+    
+    frame_hist.GetYaxis().CenterTitle(True)
+    
     if y_range is not None:
         frame_hist.GetYaxis().SetRangeUser(*y_range)
     if ratio_frame_hist is not None:
@@ -78,8 +82,10 @@ def ApplyAxisSetup(frame_hist, ratio_frame_hist=None, x_title="", y_title="", ra
         ratio_frame_hist.GetYaxis().SetLabelSize(ratio_y_label_size * ratio_item_size_sf)
         ratio_frame_hist.GetYaxis().SetLabelOffset(ratio_y_label_offset)
         ratio_frame_hist.GetYaxis().SetNdivisions(ratio_n_div_y);
+
         if max_ratio > 0:
-            ratio_frame_hist.GetYaxis().SetRangeUser(max(0., 2 - max_ratio), max_ratio)
+            # ratio_frame_hist.GetYaxis().SetRangeUser(max(0., 2 - max_ratio), max_ratio)
+            ratio_frame_hist.GetYaxis().SetRangeUser(0.85, 1.2)
     else:
         frame_hist.GetXaxis().SetTitle(x_title);
         frame_hist.GetXaxis().SetTitleSize(axis_title_sizes[0])
@@ -164,7 +170,7 @@ def CreateTwoPadLayout(canvas, ref_hist, ratio_ref_hist, main_box=Box(0.02, 0.25
     main_pad.Draw()
     ratio_pad.Draw()
 
-    main_pad.cd()
+    main_pad.cd()    
     main_pad.SetLogx(log_x)
     main_pad.SetLogy(log_y)
     ref_hist.Draw()
@@ -176,16 +182,63 @@ def CreateTwoPadLayout(canvas, ref_hist, ratio_ref_hist, main_box=Box(0.02, 0.25
     ratio_ref_hist.Draw()
     ratio_ref_hist.SetTitle('')
 
+    # xmin = ratio_ref_hist.GetXaxis().GetXmin()
+    # xmax = ratio_ref_hist.GetXaxis().GetXmax()
+    # line = ROOT.TLine(0.0, 1.0, 150.0, 1.0)
+    # line.SetLineColor(ROOT.kRed + 2)
+    # # line.SetLineStyle(2)
+    # line.SetLineWidth(2)
+    # line.Draw("same")
+    
+
     canvas.cd()
     if title is not None and len(title) > 0:
-        canvas.SetTitle(title)
-        title_controls = DrawLabel(title, pos=title_pos, text_size=title_text_size, font=title_font,
-                                   align=TextAlign.Center, color=title_color)
+        # canvas.SetTitle(title)
+        # title_controls = DrawLabel(title, pos=title_pos, text_size=title_text_size, font=title_font,
+        #                            align=TextAlign.Center, color=title_color)
+
+        title_controls = None
     else:
         title_controls = None
+    # title_controls = None
 
     main_pad.cd()
     return main_pad, ratio_pad, title_controls
+
+def CreateNoPadLayout(canvas, ref_hist, ratio_ref_hist, main_box=Box(0.02, 0.25, 0.95, 0.94),
+                       axis_title_sizes=(0.055, 0.055), axis_title_offsets=(1,1.4), axis_label_sizes=(0.04,0.04),
+                       axis_label_offsets=(0.005,0.005),
+                       margins=MarginBox(0.15, 0.14, 0.03, 0.02), ratio_pad_size=0.25, log_x=False, log_y=False,
+                       title='', x_title='', y_title='', title_pos=(0.5, 0.96), title_text_size=0.05, title_font=42, title_color=ROOT.kBlack):
+    canvas.cd()
+
+    ref_hist.SetTitle('')
+    ref_hist.GetXaxis().SetTitle(x_title)
+    # ref_hist.GetXaxis().SetTitleSize(axis_title_sizes[1])
+    # ref_hist.GetXaxis().SetTitleOffset(axis_title_offsets[1])
+    # ref_hist.GetXaxis().SetLabelSize(axis_label_sizes[1])
+    # ref_hist.GetXaxis().SetLabelOffset(axis_label_offsets[1])    
+
+    ref_hist.GetYaxis().SetTitle(y_title)
+    # ref_hist.GetYaxis().SetTitleSize(axis_title_sizes[1])
+    # ref_hist.GetYaxis().SetTitleOffset(axis_title_offsets[1])
+    # ref_hist.GetYaxis().SetLabelSize(axis_label_sizes[1])
+    # ref_hist.GetYaxis().SetLabelOffset(axis_label_offsets[1])    
+    ref_hist.GetYaxis().CenterTitle(True)
+    ref_hist.Draw()
+
+    canvas.cd()
+    if title is not None and len(title) > 0:
+        # canvas.SetTitle(title)
+        # title_controls = DrawLabel(title, pos=title_pos, text_size=title_text_size, font=title_font,
+        #                            align=TextAlign.Center, color=title_color)
+
+        title_controls = None
+    else:
+        title_controls = None
+    # title_controls = None
+
+    return title_controls
 
 def CreateLegend(pos=(0.18, 0.78), size=(0.2, 0.15), fill_color=ROOT.kWhite, fill_style=0, border_size=0,
                  text_size=0.04, font=42):
